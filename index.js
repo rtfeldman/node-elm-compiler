@@ -44,6 +44,10 @@ function compile(sources, options) {
 
   options = _.defaults({}, options, defaultOptions);
 
+  if (typeof options.spawn !== "function") {
+    throw "options.spawn was a(n) " + (typeof options.spawn) + " instead of a function."
+  }
+
   var compilerArgs = compilerArgsFromOptions(options, options.warn);
   var processArgs  = sources ? sources.concat(compilerArgs) : compilerArgs;
   var spawnOpts    = {cwd: options.cwd, env: options.env, stdio: options.stdio}
