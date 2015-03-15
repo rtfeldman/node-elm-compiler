@@ -1,0 +1,23 @@
+{
+  "name": "node-elm-compiler",
+  "version": "0.0.1",
+  "homepage": "https://github.com/rtfeldman/node-elm-compiler",
+  "authors": [
+    "Richard Feldman <richard.t.feldman@gmail.com>"
+  ],
+  "description": "A Node.js interface to the Elm compiler binaries.",
+  "main": "index.js",
+  "keywords": [
+    "elm",
+    "node",
+    "compiler"
+  ],
+  "license": "Apache2",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
