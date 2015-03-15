@@ -26,3 +26,7 @@ node_modules
 
 # Users Environment Variables
 .lock-wscript
+
+# Elm stuff
+elm-stuff
+elm-package.json
