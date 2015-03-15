@@ -20,15 +20,17 @@
 var spawnChildProcess = require('child_process').spawn;
 var _                 = require('lodash');
 
+function defaultSpawn(cmd, args) {
+  return spawnChildProcess(cmd, args, {stdio: "inherit"});
+}
+
 var defaultOptions     = {
   warn:       console.warn,
   pathToMake: __dirname + "/node_modules/elm-platform-bin/bin/elm-make",
-  spawn:      spawnChildProcess,
-  cwd:        process.cwd(),
+  spawn:      defaultSpawn,
   yes:        undefined,
   help:       undefined,
   output:     undefined,
-  stdio:      "inherit"
 };
 
 var supportedOptions = _.keys(defaultOptions);
@@ -50,9 +52,8 @@ function compile(sources, options) {
 
   var compilerArgs = compilerArgsFromOptions(options, options.warn);
   var processArgs  = sources ? sources.concat(compilerArgs) : compilerArgs;
-  var spawnOpts    = {cwd: options.cwd, env: options.env, stdio: options.stdio}
 
-  return options.spawn(options.pathToMake, processArgs, spawnOpts);
+  return options.spawn(options.pathToMake, processArgs);
 }
 
 function escapePath(pathStr) {
