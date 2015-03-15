@@ -22,7 +22,6 @@ var _                 = require('lodash');
 
 var defaultOptions     = {
   warn:       console.warn,
-  onFinished: function() {},
   pathToMake: __dirname + "/node_modules/elm-platform-bin/bin/elm-make",
   spawn:      spawnChildProcess,
   cwd:        process.cwd(),
@@ -48,11 +47,8 @@ function compile(sources, options) {
   var compilerArgs = compilerArgsFromOptions(options, options.warn);
   var processArgs  = sources ? sources.concat(compilerArgs) : compilerArgs;
   var spawnOpts    = {cwd: options.cwd, env: options.env, stdio: options.stdio}
-  var childProcess = options.spawn(options.pathToMake, processArgs, spawnOpts);
 
-  childProcess.on('close', function(exitCode) {
-    options.onFinished(exitCode);
-  });
+  return options.spawn(options.pathToMake, processArgs, spawnOpts);
 }
 
 function escapePath(pathStr) {
