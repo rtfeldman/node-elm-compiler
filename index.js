@@ -26,6 +26,9 @@ var defaultOptions     = {
   pathToMake: __dirname + "/node_modules/elm-platform-bin/bin/elm-make",
   spawn:      spawnChildProcess,
   cwd:        process.cwd(),
+  yes:        undefined,
+  help:       undefined,
+  output:     undefined,
   stdio:      "inherit"
 };
 
