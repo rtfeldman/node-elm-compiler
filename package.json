@@ -20,5 +20,12 @@
   "bugs": {
     "url": "https://github.com/rtfeldman/node-elm-compiler/issues"
   },
-  "homepage": "https://github.com/rtfeldman/node-elm-compiler"
+  "homepage": "https://github.com/rtfeldman/node-elm-compiler",
+  "devDependencies": {
+    "lodash": "3.5.0"
+  },
+  "dependencies": {
+    "elm-platform-bin": "1.2.0",
+    "lodash": "3.5.0"
+  }
 }
