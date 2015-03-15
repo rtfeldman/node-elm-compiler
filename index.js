@@ -39,7 +39,7 @@ function compile(sources, options) {
   }
 
   if (!(sources instanceof Array)) {
-    throw "compile() did not receive an Array for its list of sources."
+    throw "compile() received neither an Array nor a String for its sources argument."
   }
 
   options = _.defaults({}, options, defaultOptions);
