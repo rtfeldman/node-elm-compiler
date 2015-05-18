@@ -1,6 +1,8 @@
 # node-elm-compiler
 
-Wraps [elm-platform-bin](https://github.com/kevva/elm-platform-bin) and exposes a [Node](https://nodejs.org) API to compile Elm sources.
+Wraps [elm-bin](https://github.com/kevva/elm-bin) and exposes a [Node](https://nodejs.org) API to compile Elm sources.
+
+Current Elm version is 0.15.
 
 # Example
 
