@@ -21,7 +21,10 @@ var spawnChildProcess = require('child_process').spawn;
 var _                 = require('lodash');
 
 function defaultSpawn(cmd, args) {
-  return spawnChildProcess(cmd, args, {stdio: "inherit"});
+  // elm-make chokes on undefined LANG
+  var env = _.merge({LANG: 'en_US.UTF-8'}, process.env)
+
+  return spawnChildProcess(cmd, args, {stdio: "inherit", env: env});
 }
 
 var defaultOptions     = {
