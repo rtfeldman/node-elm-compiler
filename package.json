@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/rtfeldman/node-elm-compiler",
   "dependencies": {
-    "elm": "1.4.1+elm-0.15",
-    "lodash": "3.5.0"
+    "elm": "1.5.1+elm-0.15",
+    "lodash": "3.9.3"
   }
 }
