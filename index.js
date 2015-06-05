@@ -19,6 +19,7 @@
 
 var spawnChildProcess = require('child_process').spawn;
 var _                 = require('lodash');
+var elmMakePath       = require('elm')['elm-make'];
 
 function defaultSpawn(cmd, args) {
   // elm-make chokes on undefined LANG
@@ -29,7 +30,7 @@ function defaultSpawn(cmd, args) {
 
 var defaultOptions     = {
   warn:       console.warn,
-  pathToMake: __dirname + "/node_modules/elm/bin/elm-make",
+  pathToMake: elmMakePath,
   spawn:      defaultSpawn,
   yes:        undefined,
   help:       undefined,
