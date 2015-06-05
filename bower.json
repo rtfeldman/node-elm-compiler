@@ -1,6 +1,6 @@
 {
   "name": "node-elm-compiler",
-  "version": "0.1.0+elm-0.15",
+  "version": "0.2.1+elm-0.15",
   "homepage": "https://github.com/rtfeldman/node-elm-compiler",
   "authors": [
     "Richard Feldman <richard.t.feldman@gmail.com>"
