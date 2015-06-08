@@ -21,17 +21,10 @@ var spawnChildProcess = require('child_process').spawn;
 var _                 = require('lodash');
 var elmMakePath       = require('elm')['elm-make'];
 
-function defaultSpawn(cmd, args) {
-  // elm-make chokes on undefined LANG
-  var env = _.merge({LANG: 'en_US.UTF-8'}, process.env)
-
-  return spawnChildProcess(cmd, args, {stdio: "inherit", env: env});
-}
-
 var defaultOptions     = {
   warn:       console.warn,
   pathToMake: elmMakePath,
-  spawn:      defaultSpawn,
+  spawn:      spawnChildProcess,
   yes:        undefined,
   help:       undefined,
   output:     undefined,
@@ -56,8 +49,10 @@ function compile(sources, options) {
 
   var compilerArgs = compilerArgsFromOptions(options, options.warn);
   var processArgs  = sources ? sources.concat(compilerArgs) : compilerArgs;
+  var env = _.merge({LANG: 'en_US.UTF-8'}, process.env);
+  var processOpts = {env: env, stdio: "inherit"};
 
-  return options.spawn(options.pathToMake, processArgs);
+  return options.spawn(options.pathToMake, processArgs, processOpts);
 }
 
 function escapePath(pathStr) {
