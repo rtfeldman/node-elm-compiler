@@ -1,11 +1,11 @@
 {
   "name": "node-elm-compiler",
-  "version": "0.3.0+elm-0.15",
+  "version": "0.4.0+elm-0.15.1",
   "homepage": "https://github.com/rtfeldman/node-elm-compiler",
   "authors": [
     "Richard Feldman <richard.t.feldman@gmail.com>"
   ],
-  "description": "A Node.js interface to the Elm compiler binaries.",
+  "description": "A Node.js interface to the Elm compiler binaries (v0.15.1).",
   "main": "index.js",
   "keywords": [
     "elm",
