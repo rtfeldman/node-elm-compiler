@@ -23,6 +23,6 @@
   "homepage": "https://github.com/rtfeldman/node-elm-compiler",
   "dependencies": {
     "elm": "2.0",
-    "lodash": "3.9.3"
+    "lodash": "3.10.1"
   }
 }
