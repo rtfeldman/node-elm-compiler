@@ -21,9 +21,6 @@
     "url": "https://github.com/rtfeldman/node-elm-compiler/issues"
   },
   "homepage": "https://github.com/rtfeldman/node-elm-compiler",
-  "peerDependencies": {
-    "elm": ">=2.0 <3.0"
-  },
   "dependencies": {
     "lodash": "3.10.1"
   }
