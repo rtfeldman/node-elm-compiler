@@ -34,8 +34,34 @@ function compile(sources, options) {
   var processArgs  = sources ? sources.concat(compilerArgs) : compilerArgs;
   var env = _.merge({LANG: 'en_US.UTF-8'}, process.env);
   var processOpts = {env: env, stdio: "inherit"};
+  var pathToMake = options.pathToMake;
 
-  return options.spawn(options.pathToMake, processArgs, processOpts);
+  try {
+    return options.spawn(elmMakePath, processArgs, processOpts)
+      .on('error', function(err) {
+        handleError(pathToMake, err);
+
+        process.exit(1)
+      });
+  } catch (err) {
+    if ((typeof err === "object") && (typeof err.code === "string")) {
+      handleError(pathToMake, err);
+    } else {
+      console.error("Exception thrown when attempting to run Elm compiler \"" + pathToMake + "\":\n" + err);
+    }
+
+    process.exit(1)
+  }
+}
+
+function handleError(pathToMake, err) {
+  if (err.code === "ENOENT") {
+    console.error("Could not find Elm compiler \"" + pathToMake + "\". Is it installed?")
+  } else if (err.code === "EACCES") {
+    console.error("Elm compiler \"" + pathToMake + "\" did not have permission to run. Do you need to give it executable permissions?");
+  } else {
+    console.error("Error attempting to run Elm compiler \"" + pathToMake + "\":\n" + err);
+  }
 }
 
 function escapePath(pathStr) {
