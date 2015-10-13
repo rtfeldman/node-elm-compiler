@@ -2,7 +2,8 @@
 
 Wraps [Elm](https://elm-lang.org) and exposes a [Node](https://nodejs.org) API to compile Elm sources.
 
-Current Elm version is 0.16.
+By default uses the `elm-make` executable you have installed on your system,
+but you can optionally specify a different `elm-make` to use.
 
 # Example
 
