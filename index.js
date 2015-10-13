@@ -1,13 +1,13 @@
 'use strict';
 
 var spawnChildProcess = require('child_process').spawn;
-var _                 = require('lodash');
-var elmMakePath       = 'elm-make';
+var _ = require('lodash');
+var compilerBinaryName = "elm-make";
 
 var defaultOptions     = {
   warn:       console.warn,
-  pathToMake: elmMakePath,
   spawn:      spawnChildProcess,
+  pathToMake: undefined,
   yes:        undefined,
   help:       undefined,
   output:     undefined,
@@ -36,8 +36,20 @@ function compile(sources, options) {
   var processOpts = {env: env, stdio: "inherit"};
   var pathToMake = options.pathToMake;
 
+  if (pathToMake === undefined) {
+    try {
+      // If a local node_modules/elm is installed, use that.
+      pathToMake = require("elm")[compilerBinaryName];
+    } catch (err) {
+      // If none was found, just use the PATH.
+      pathToMake = compilerBinaryName;
+    }
+  }
+
   try {
-    return options.spawn(elmMakePath, processArgs, processOpts)
+    console.log(["Running", pathToMake].concat(processArgs || []).join(" "));
+
+    return options.spawn(pathToMake, processArgs, processOpts)
       .on('error', function(err) {
         handleError(pathToMake, err);
 
