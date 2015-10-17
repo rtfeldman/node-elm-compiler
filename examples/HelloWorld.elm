@@ -1,6 +1,5 @@
-import Graphics.Element (..)
-import Text (..)
+import Graphics.Element exposing (..)
 
 main : Element
 main =
-  plainText "Hello, World!"
+  show "Hello, World!"

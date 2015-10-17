@@ -1,30 +1,13 @@
-/*
- * node-elm-compiler
- * https://github.com/rfeldman/node-elm-compiler
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 'use strict';
 
 var spawnChildProcess = require('child_process').spawn;
-var _                 = require('lodash');
-var elmMakePath       = require('elm')['elm-make'];
+var _ = require('lodash');
+var compilerBinaryName = "elm-make";
 
 var defaultOptions     = {
   warn:       console.warn,
-  pathToMake: elmMakePath,
   spawn:      spawnChildProcess,
+  pathToMake: undefined,
   yes:        undefined,
   help:       undefined,
   output:     undefined,
@@ -51,8 +34,46 @@ function compile(sources, options) {
   var processArgs  = sources ? sources.concat(compilerArgs) : compilerArgs;
   var env = _.merge({LANG: 'en_US.UTF-8'}, process.env);
   var processOpts = {env: env, stdio: "inherit"};
+  var pathToMake = options.pathToMake;
 
-  return options.spawn(options.pathToMake, processArgs, processOpts);
+  if (pathToMake === undefined) {
+    try {
+      // If a local node_modules/elm is installed, use that.
+      pathToMake = require("elm")[compilerBinaryName];
+    } catch (err) {
+      // If none was found, just use the PATH.
+      pathToMake = compilerBinaryName;
+    }
+  }
+
+  try {
+    console.log(["Running", pathToMake].concat(processArgs || []).join(" "));
+
+    return options.spawn(pathToMake, processArgs, processOpts)
+      .on('error', function(err) {
+        handleError(pathToMake, err);
+
+        process.exit(1)
+      });
+  } catch (err) {
+    if ((typeof err === "object") && (typeof err.code === "string")) {
+      handleError(pathToMake, err);
+    } else {
+      console.error("Exception thrown when attempting to run Elm compiler \"" + pathToMake + "\":\n" + err);
+    }
+
+    process.exit(1)
+  }
+}
+
+function handleError(pathToMake, err) {
+  if (err.code === "ENOENT") {
+    console.error("Could not find Elm compiler \"" + pathToMake + "\". Is it installed?")
+  } else if (err.code === "EACCES") {
+    console.error("Elm compiler \"" + pathToMake + "\" did not have permission to run. Do you need to give it executable permissions?");
+  } else {
+    console.error("Error attempting to run Elm compiler \"" + pathToMake + "\":\n" + err);
+  }
 }
 
 function escapePath(pathStr) {

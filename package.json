@@ -1,7 +1,7 @@
 {
   "name": "node-elm-compiler",
-  "version": "0.4.0+elm-0.15.1",
-  "description": "A Node.js interface to the Elm compiler binaries (v0.15.1).",
+  "version": "1.0.0",
+  "description": "A Node.js interface to the Elm compiler binaries. Supports Elm versions 0.15 - 0.16.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -16,13 +16,12 @@
     "node"
   ],
   "author": "Richard Feldman",
-  "license": "Apache-2.0",
+  "license": "BSD-3-Clause",
   "bugs": {
     "url": "https://github.com/rtfeldman/node-elm-compiler/issues"
   },
   "homepage": "https://github.com/rtfeldman/node-elm-compiler",
   "dependencies": {
-    "elm": "2.0",
-    "lodash": "3.9.3"
+    "lodash": "3.10.1"
   }
 }
