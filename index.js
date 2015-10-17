@@ -39,7 +39,7 @@ function compile(sources, options) {
   if (pathToMake === undefined) {
     try {
       // If a local node_modules/elm is installed, use that.
-      pathToMake = require("elm")[compilerBinaryName];
+      pathToMake = require("elm").getPathTo(compilerBinaryName);
     } catch (err) {
       // If none was found, just use the PATH.
       pathToMake = compilerBinaryName;
