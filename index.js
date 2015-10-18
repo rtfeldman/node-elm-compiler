@@ -50,6 +50,11 @@ function compile(sources, options) {
     }
   }
 
+  if (!pathToMake) {
+    console.error("Something went wrong and pathToMake ended up set to ", JSON.stringify(pathToMake));
+    process.exit(1);
+  }
+
   try {
     console.log(["Running", pathToMake].concat(processArgs || []).join(" "));
 
