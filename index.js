@@ -36,13 +36,17 @@ function compile(sources, options) {
   var processOpts = {env: env, stdio: "inherit"};
   var pathToMake = options.pathToMake;
 
-  if (pathToMake === undefined) {
+  if (!pathToMake) {
+    // If all else fails, use the PATH.
+    pathToMake = compilerBinaryName;
+
     try {
+      var installation = require("elm");
+
       // If a local node_modules/elm is installed, use that.
-      pathToMake = require("elm").getPathTo(compilerBinaryName);
+      pathToMake = installation.getPathTo(compilerBinaryName);
     } catch (err) {
-      // If none was found, just use the PATH.
-      pathToMake = compilerBinaryName;
+      // Do nothing.
     }
   }
 
