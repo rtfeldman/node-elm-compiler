@@ -11,3 +11,14 @@ $ npm install
 $ cd examples
 $ node compileHelloWorld.js
 ```
+
+# Releases
+
+## 2.0.0
+
+No longer searches `node_modules/.bin` for `elm-make` - now if you don't specify
+a `pathToMake` option, only the one on PATH will be used as a fallback.
+
+## 1.0.0
+
+Initial release.
