@@ -1,16 +1,17 @@
 'use strict';
 
-var spawnChildProcess = require('child_process').spawn;
+var childProcess = require("child_process");
 var _ = require('lodash');
 var compilerBinaryName = "elm-make";
 
 var defaultOptions     = {
   warn:       console.warn,
-  spawn:      spawnChildProcess,
+  spawn:      childProcess.spawn,
   pathToMake: undefined,
   yes:        undefined,
   help:       undefined,
   output:     undefined,
+  verbose:    false
 };
 
 var supportedOptions = _.keys(defaultOptions);
@@ -34,29 +35,13 @@ function compile(sources, options) {
   var processArgs  = sources ? sources.concat(compilerArgs) : compilerArgs;
   var env = _.merge({LANG: 'en_US.UTF-8'}, process.env);
   var processOpts = {env: env, stdio: "inherit"};
-  var pathToMake = options.pathToMake;
-
-  if (!pathToMake) {
-    // If all else fails, use the PATH.
-    pathToMake = compilerBinaryName;
-
-    try {
-      var installation = require("elm");
-
-      // If a local node_modules/elm is installed, use that.
-      pathToMake = installation.getPathTo(compilerBinaryName);
-    } catch (err) {
-      // Do nothing.
-    }
-  }
-
-  if (!pathToMake) {
-    console.error("Something went wrong and pathToMake ended up set to ", JSON.stringify(pathToMake));
-    process.exit(1);
-  }
+  var pathToMake = options.pathToMake || compilerBinaryName;
+  var verbose = options.verbose;
 
   try {
-    console.log(["Running", pathToMake].concat(processArgs || []).join(" "));
+    if (verbose) {
+      console.log(["Running", pathToMake].concat(processArgs || []).join(" "));
+    }
 
     return options.spawn(pathToMake, processArgs, processOpts)
       .on('error', function(err) {
