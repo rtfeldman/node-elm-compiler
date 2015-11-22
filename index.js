@@ -1,12 +1,12 @@
 'use strict';
 
-var spawnChildProcess = require('child_process').spawn;
+var childProcess = require("child_process");
 var _ = require('lodash');
 var compilerBinaryName = "elm-make";
 
 var defaultOptions     = {
   warn:       console.warn,
-  spawn:      spawnChildProcess,
+  spawn:      childProcess.spawn,
   pathToMake: undefined,
   yes:        undefined,
   help:       undefined,
