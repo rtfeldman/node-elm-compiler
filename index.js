@@ -37,16 +37,14 @@ function compile(sources, options) {
   var pathToMake = options.pathToMake;
 
   if (!pathToMake) {
-    // If all else fails, use the PATH.
-    pathToMake = compilerBinaryName;
-
     try {
       var installation = require("elm");
 
       // If a local node_modules/elm is installed, use that.
       pathToMake = installation.getPathTo(compilerBinaryName);
     } catch (err) {
-      // Do nothing.
+      // If all else fails, use the PATH.
+      pathToMake = compilerBinaryName;
     }
   }
 
