@@ -11,6 +11,7 @@ var defaultOptions     = {
   yes:        undefined,
   help:       undefined,
   output:     undefined,
+  verbose:    false
 };
 
 var supportedOptions = _.keys(defaultOptions);
@@ -35,9 +36,12 @@ function compile(sources, options) {
   var env = _.merge({LANG: 'en_US.UTF-8'}, process.env);
   var processOpts = {env: env, stdio: "inherit"};
   var pathToMake = options.pathToMake || compilerBinaryName;
+  var verbose = options.verbose;
 
   try {
-    console.log(["Running", pathToMake].concat(processArgs || []).join(" "));
+    if (verbose) {
+      console.log(["Running", pathToMake].concat(processArgs || []).join(" "));
+    }
 
     return options.spawn(pathToMake, processArgs, processOpts)
       .on('error', function(err) {
