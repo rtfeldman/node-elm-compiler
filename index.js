@@ -34,20 +34,7 @@ function compile(sources, options) {
   var processArgs  = sources ? sources.concat(compilerArgs) : compilerArgs;
   var env = _.merge({LANG: 'en_US.UTF-8'}, process.env);
   var processOpts = {env: env, stdio: "inherit"};
-  var pathToMake = options.pathToMake;
-
-  if (!pathToMake) {
-    try {
-      // If a local node_modules/elm is installed, use that.
-      var installation = require("elm");
-      var binDir = childProcess.execSync("npm bin", {encoding: "utf8"}).trim();
-
-      pathToMake = path.join(binDir, compilerBinaryName);
-    } catch (err) {
-      // If all else fails, use the PATH.
-      pathToMake = compilerBinaryName;
-    }
-  }
+  var pathToMake = options.pathToMake || compilerBinaryName;
 
   try {
     console.log(["Running", pathToMake].concat(processArgs || []).join(" "));
