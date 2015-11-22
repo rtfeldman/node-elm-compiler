@@ -38,19 +38,15 @@ function compile(sources, options) {
 
   if (!pathToMake) {
     try {
-      var installation = require("elm");
-
       // If a local node_modules/elm is installed, use that.
-      pathToMake = installation.getPathTo(compilerBinaryName);
+      var installation = require("elm");
+      var binDir = childProcess.execSync("npm bin", {encoding: "utf8"}).trim();
+
+      pathToMake = path.join(binDir, compilerBinaryName);
     } catch (err) {
       // If all else fails, use the PATH.
       pathToMake = compilerBinaryName;
     }
-  }
-
-  if (!pathToMake) {
-    console.error("Something went wrong and pathToMake ended up set to ", JSON.stringify(pathToMake));
-    process.exit(1);
   }
 
   try {
