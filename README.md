@@ -14,6 +14,10 @@ $ node compileHelloWorld.js
 
 # Releases
 
+## 2.1.0
+
+Added #findAllDependencies
+
 ## 2.0.0
 
 No longer searches `node_modules/.bin` for `elm-make` - now if you don't specify
