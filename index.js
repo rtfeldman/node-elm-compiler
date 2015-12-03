@@ -1,8 +1,10 @@
 'use strict';
 
 var childProcess = require("child_process");
-var _ = require('lodash');
+var _ = require("lodash");
 var compilerBinaryName = "elm-make";
+var fs = require("fs");
+var path = require("path");
 
 var defaultOptions     = {
   warn:       console.warn,
@@ -60,6 +62,96 @@ function compile(sources, options) {
   }
 }
 
+// Returns a Promise that returns a flat list of all the Elm files the given
+// Elm file depends on, based on the modules it loads via `import`.
+function findAllDependencies(file, knownDependencies) {
+  if (!knownDependencies) {
+    knownDependencies = [];
+  }
+
+  return new Promise(function(resolve, reject) {
+    var baseDir = path.dirname(file);
+
+    fs.readFile(file, {encoding: "utf8"}, function(err, lines) {
+      if (err) {
+        reject(err);
+      } else {
+        // Turn e.g. ~/code/elm-css/src/Css.elm
+        // into just ~/code/elm-css/src/
+        var newImports = _.compact(lines.split("\n").map(function(line) {
+          var matches = line.match(/^import\s+([^\s]+)/);
+
+          if (matches) {
+            // e.g. Css.Declarations
+            var moduleName = matches[1];
+
+            // e.g. Css/Declarations
+            var dependencyLogicalName = moduleName.replace(/\./g, "/");
+
+            // e.g. ~/code/elm-css/src/Css/Declarations.elm
+            // TODO need to handle Native .js files in here...
+            var result = path.join(baseDir, dependencyLogicalName)
+
+            return _.contains(knownDependencies, result) ? null : result;
+          } else {
+            return null;
+          }
+        }));
+
+        var promises = newImports.map(function(newImport) {
+          var elmFile = newImport + ".elm";
+
+          return new Promise(function(resolve, reject) {
+            return checkIsFile(newImport + ".elm").then(resolve).catch(function(firstErr) {
+              if (firstErr.code === "ENOENT") {
+                // If we couldn't find the import as a .elm file, try as .js
+                checkIsFile(newImport + ".js").then(resolve).catch(function(secondErr) {
+                  if (secondErr.code === "ENOENT") {
+                    // If we don't find the dependency in our filesystem, assume it's because
+                    // it comes in through a third-party package rather than our sources.
+                    resolve([]);
+                  } else {
+                    reject(secondErr);
+                  }
+                })
+              } else {
+                reject(firstErr);
+              }
+            });
+          });
+        });
+
+        Promise.all(promises).then(function(nestedValidDependencies) {
+          var validDependencies = _.flatten(nestedValidDependencies);
+          var newDependencies = knownDependencies.concat(validDependencies);
+          var recursePromises = _.compact(validDependencies.map(function(dependency) {
+            return path.extname(dependency) === ".elm" ?
+              findAllDependencies(dependency, newDependencies) : null;
+          }));
+
+          Promise.all(recursePromises).then(function(extraDependencies) {
+            resolve(_.uniq(_.flatten(newDependencies.concat(extraDependencies))));
+          }).catch(reject);
+        }).catch(reject);
+      }
+    });
+  });
+}
+
+function checkIsFile(file) {
+  return new Promise(function(resolve, reject) {
+    fs.stat(file, function(err, stats) {
+      if (err) {
+        reject(err);
+      } else if (stats.isFile()) {
+        resolve([file]);
+      } else {
+        resolve([]);
+      }
+    });
+  });
+}
+
 function handleError(pathToMake, err) {
   if (err.code === "ENOENT") {
     console.error("Could not find Elm compiler \"" + pathToMake + "\". Is it installed?")
@@ -97,5 +189,6 @@ function compilerArgsFromOptions(options, logWarning) {
 }
 
 module.exports = {
-  compile: compile
+  compile: compile,
+  findAllDependencies: findAllDependencies
 };
