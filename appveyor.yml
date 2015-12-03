@@ -3,6 +3,10 @@ environment:
   - nodejs_version: "5.0"
   - nodejs_version: "0.12"
 
+platform:
+  - x86
+  - x64
+
 matrix:
   fast_finish: true
 
