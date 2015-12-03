@@ -18,10 +18,8 @@ addons:
 
 env:
   matrix:
-    - ELM_VERSION=master TARGET_NODE_VERSION=node
-    - ELM_VERSION=master TARGET_NODE_VERSION=0.12
-    - ELM_VERSION=0.16 TARGET_NODE_VERSION=node
-    - ELM_VERSION=0.16 TARGET_NODE_VERSION=0.12
+    - ELM_VERSION=0.16.0 TARGET_NODE_VERSION=node
+    - ELM_VERSION=0.16.0 TARGET_NODE_VERSION=0.12
 
 before_install:
   - if [ ${TRAVIS_OS_NAME} == "osx" ];
@@ -33,6 +31,7 @@ install:
   - nvm use $TARGET_NODE_VERSION
   - node --version
   - npm --version
+  - npm install -g elm@$ELM_VERSION
   - npm install
 
 script:
