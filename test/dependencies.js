@@ -17,4 +17,13 @@ describe("#findAllDependencies", function() {
       );
     });
   });
+
+  it("works for a file with nested dependencies", function () {
+    return compiler.findAllDependencies(prependFixturesDir("ParentWithNestedDeps.elm")).then(function(results) {
+      assert.deepEqual(
+        results,
+        [ "ChildA.elm", "NestedChild.elm", "ChildB.elm", "NativeChild.js" ].map(prependFixturesDir)
+      );
+    });
+  });
 });
