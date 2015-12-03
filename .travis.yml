@@ -1,0 +1,34 @@
+sudo: false
+
+os:
+  - osx
+  - linux
+
+addons:
+  apt:
+    sources:
+      - hvr-ghc
+    packages:
+      - ghc-7.10.1
+      - cabal-install-1.22
+      - happy
+      - alex
+      - nodejs
+      - npm
+
+env:
+  matrix:
+    - ELM_VERSION=master TARGET_NODE_VERSION=node
+    - ELM_VERSION=master TARGET_NODE_VERSION=0.10
+    - ELM_VERSION=0.16 TARGET_NODE_VERSION=node
+    - ELM_VERSION=0.16 TARGET_NODE_VERSION=0.10
+
+install:
+  - nvm install $TARGET_NODE_VERSION
+  - nvm use $TARGET_NODE_VERSION
+  - node --version
+  - npm --version
+  - npm install
+
+script:
+  - npm test
