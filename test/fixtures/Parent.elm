@@ -6,8 +6,9 @@ import ChildA
 -- This is a comment in between two import statements.
 
 import ChildB exposing (..)
-import NativeChild exposing (..)
+import Native.Child exposing (..)
+import Graphics.Element exposing (show)
 
 
 main =
-    "Hello, World!"
+    show "Hello, World!"

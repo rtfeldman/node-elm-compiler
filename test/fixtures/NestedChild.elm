@@ -1,7 +1,7 @@
 module NestedChild (..) where
 
 import ChildB
-import NativeChild exposing (..)
+import Native.Child exposing (..)
 
 
 main =

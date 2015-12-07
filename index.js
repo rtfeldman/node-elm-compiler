@@ -9,6 +9,7 @@ var path = require("path");
 var defaultOptions     = {
   warn:       console.warn,
   spawn:      childProcess.spawn,
+  cwd:        undefined,
   pathToMake: undefined,
   yes:        undefined,
   help:       undefined,
@@ -36,7 +37,7 @@ function compile(sources, options) {
   var compilerArgs = compilerArgsFromOptions(options, options.warn);
   var processArgs  = sources ? sources.concat(compilerArgs) : compilerArgs;
   var env = _.merge({LANG: 'en_US.UTF-8'}, process.env);
-  var processOpts = {env: env, stdio: "inherit"};
+  var processOpts = _.merge({env: env, stdio: "inherit", cwd: options.cwd});
   var pathToMake = options.pathToMake || compilerBinaryName;
   var verbose = options.verbose;
 
