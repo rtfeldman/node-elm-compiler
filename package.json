@@ -4,7 +4,7 @@
   "description": "A Node.js interface to the Elm compiler binaries. Supports Elm versions 0.15 - 0.16.",
   "main": "index.js",
   "scripts": {
-    "test": "mocha test/dependencies.js"
+    "test": "mocha test/*.js"
   },
   "repository": {
     "type": "git",
