@@ -18,7 +18,7 @@ describe("#compile", function() {
     var opts = {yes: true, output: "/dev/null", verbose: true, cwd: fixturesDir};
     var compileProcess = compiler.compile(prependFixturesDir("Parent.elm"), opts);
 
-    compileProcess.on("close", function(exitCode) {
+    compileProcess.on("exit", function(exitCode) {
       assert.equal(exitCode, 0, "Expected elm-make to have exit code 0");
       done();
     });
