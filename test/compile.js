@@ -10,19 +10,13 @@ function prependFixturesDir(filename) {
   return path.join(fixturesDir, filename);
 }
 
-function spawnForFixtures(pathToMake, processArgs, processOpts) {
-  var opts = _.defaults({cwd: fixturesDir}, processOpts);
-
-  return childProcess.spawn(pathToMake, processArgs, opts);
-}
-
 describe("#compile", function() {
   it("works with --yes", function (done) {
     // Use a timeout of 60 seconds because we need to download packages.
     // (Had 30 seconds before and it timed out on Travis Linux.)
     this.timeout(60000);
 
-    var opts = {yes: true, output: "/dev/null", verbose: true, spawn: spawnForFixtures};
+    var opts = {yes: true, output: "/dev/null", verbose: true, cwd: fixturesDir};
     var compileProcess = compiler.compile(prependFixturesDir("Parent.elm"), opts);
 
     compileProcess.on("close", function(exitCode) {
