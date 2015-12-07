@@ -18,8 +18,9 @@ function spawnForFixtures(pathToMake, processArgs, processOpts) {
 
 describe("#compile", function() {
   it("works with --yes", function (done) {
-    // Use a timeout of 30 seconds because we need to download packages.
-    this.timeout(30000);
+    // Use a timeout of 60 seconds because we need to download packages.
+    // (Had 30 seconds before and it timed out on Travis Linux.)
+    this.timeout(60000);
 
     var opts = {yes: true, output: "/dev/null", verbose: true, spawn: spawnForFixtures};
     var compileProcess = compiler.compile(prependFixturesDir("Parent.elm"), opts);
