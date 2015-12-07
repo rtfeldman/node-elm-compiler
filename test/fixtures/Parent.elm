@@ -7,7 +7,8 @@ import ChildA
 
 import ChildB exposing (..)
 import Native.Child exposing (..)
+import Graphics.Element exposing (show)
 
 
 main =
-    "Hello, World!"
+    show "Hello, World!"

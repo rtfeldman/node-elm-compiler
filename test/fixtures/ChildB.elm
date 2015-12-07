@@ -1,5 +1,7 @@
 module ChildB (..) where
 
+import Graphics.Element exposing (show)
+
 
 main =
-    "I am child B"
+    show "I am child B"
