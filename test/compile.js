@@ -12,6 +12,9 @@ function prependFixturesDir(filename) {
 
 describe("#compile", function() {
   it("works with --yes", function (done) {
+    // Use a timeout of 10 seconds because Travis on Linux can be slow to build.
+    this.timeout(10000);
+
     var opts = {yes: true, output: "/dev/null", verbose: true, cwd: fixturesDir};
     var compileProcess = compiler.compile(prependFixturesDir("Parent.elm"), opts);
 
