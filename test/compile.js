@@ -12,9 +12,10 @@ function prependFixturesDir(filename) {
 
 describe("#compile", function() {
   it("works with --yes", function (done) {
-    // Use a timeout of 60 seconds because we need to download packages.
-    // (Had 30 seconds before and it timed out on Travis Linux.)
-    this.timeout(60000);
+    // Use a timeout of 1200 seconds because we need to download packages.
+    // (Had 60 seconds before and it timed out on Travis Linux.)
+    // (Could probably improve this by explicitly doing a separate elm-package install step.)
+    this.timeout(120000);
 
     var opts = {yes: true, output: "/dev/null", verbose: true, cwd: fixturesDir};
     var compileProcess = compiler.compile(prependFixturesDir("Parent.elm"), opts);
