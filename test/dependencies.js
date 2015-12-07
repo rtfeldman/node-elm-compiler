@@ -13,7 +13,7 @@ describe("#findAllDependencies", function() {
     return compiler.findAllDependencies(prependFixturesDir("Parent.elm")).then(function(results) {
       assert.deepEqual(
         results,
-        [ "ChildA.elm", "ChildB.elm", "NativeChild.js" ].map(prependFixturesDir)
+        [ "ChildA.elm", "ChildB.elm", "Native/Child.js" ].map(prependFixturesDir)
       );
     });
   });
@@ -22,7 +22,7 @@ describe("#findAllDependencies", function() {
     return compiler.findAllDependencies(prependFixturesDir("ParentWithNestedDeps.elm")).then(function(results) {
       assert.deepEqual(
         results,
-        [ "ChildA.elm", "NestedChild.elm", "ChildB.elm", "NativeChild.js" ].map(prependFixturesDir)
+        [ "ChildA.elm", "NestedChild.elm", "ChildB.elm", "Native/Child.js" ].map(prependFixturesDir)
       );
     });
   });
