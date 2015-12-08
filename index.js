@@ -162,12 +162,9 @@ function compileToString(sources, options){
       compile(sources, options)
         .on("close", function(exitCode){
           fs.readFile(info.path, function(err, data){
-            if (err){
-              return reject(err);
-            }
-
             temp.cleanupSync();
-            return resolve(data);
+
+            return err ? reject(err) : resolve(data);
           });
         });
     });
