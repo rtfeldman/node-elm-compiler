@@ -5,6 +5,7 @@ var _ = require("lodash");
 var compilerBinaryName = "elm-make";
 var fs = require("fs");
 var path = require("path");
+var temp = require("temp");
 
 var defaultOptions     = {
   warn:       console.warn,
@@ -18,6 +19,7 @@ var defaultOptions     = {
 };
 
 var supportedOptions = _.keys(defaultOptions);
+
 
 function compile(sources, options) {
   if (typeof sources === "string") {
@@ -139,6 +141,39 @@ function findAllDependencies(file, knownDependencies) {
   });
 }
 
+// write compiled Elm to a string output
+// returns a Promise which will contain a Buffer of the text
+// If you want html instead of js, use options object to set
+// output to a html file instead
+// creates a temp file and deletes it after reading
+function compileToString(sources, options){
+  if (typeof options.output === "undefined"){
+    options.output = '.js';
+  }
+
+  return new Promise(function(resolve, reject){
+    temp.open({ suffix: options.output }, function(err, info){
+      if (err){
+        return reject(err);
+      }
+
+      options.output = info.path;
+
+      compile(sources, options)
+        .on("close", function(exitCode){
+          fs.readFile(info.path, function(err, data){
+            if (err){
+              return reject(err);
+            }
+
+            temp.cleanupSync();
+            return resolve(data);
+          });
+        });
+    });
+  });
+}
+
 function checkIsFile(file) {
   return new Promise(function(resolve, reject) {
     fs.stat(file, function(err, stats) {
@@ -191,5 +226,6 @@ function compilerArgsFromOptions(options, logWarning) {
 
 module.exports = {
   compile: compile,
+  compileToString: compileToString,
   findAllDependencies: findAllDependencies
 };
