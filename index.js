@@ -141,33 +141,36 @@ function findAllDependencies(file, knownDependencies) {
 }
 
 // write compiled Elm to a string output
-// callback takes (err, data), where data is a Buffer of
-// the compiled text.
+// returns a Promise which will contain a Buffer of the text
 // If you want html instead of js, use options object to set
 // output to a html file instead
 // creates a temp file and deletes it after reading
-function compileToString(sources, options, callback){
+function compileToString(sources, options){
   if (typeof options.output === "undefined"){
     options.output = '.js';
   }
 
-  temp.open({ suffix: options.output }, function(err, info){
-    if (err){
-      return callback(err, null);
-    }
+  return new Promise(function(resolve, reject){
+    temp.open({ suffix: options.output }, function(err, info){
+      if (err){
+        return reject(err);
+      }
 
-    options.output = info.path;
+      options.output = info.path;
 
-    compile(sources, options)
-      .on("close", function(exitCode){
-        console.log(exitCode, info.path);
-        fs.readFile(info.path, function(err, data){
-          callback(err, data);
-          temp.cleanupSync();
+      compile(sources, options)
+        .on("close", function(exitCode){
+          fs.readFile(info.path, function(err, data){
+            if (err){
+              return reject(err);
+            }
+
+            temp.cleanupSync();
+            return resolve(data);
+          });
         });
-      });
+    });
   });
-  var compiler = compile(sources, options);
 }
 
 function checkIsFile(file) {
