@@ -14,6 +14,10 @@ $ node compileHelloWorld.js
 
 # Releases
 
+## 2.2.0
+
+Added `cwd` to `options` and fixed a bug where Windows couldn't find `elm-make`.
+
 ## 2.1.0
 
 Added #findAllDependencies
