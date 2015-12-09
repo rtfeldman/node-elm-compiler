@@ -26,11 +26,12 @@
   "homepage": "https://github.com/rtfeldman/node-elm-compiler",
   "dependencies": {
     "cross-spawn": "2.1.0",
-    "lodash": "3.10.1"
+    "lodash": "3.10.1",
+    "temp": "^0.8.3"
+
   },
   "devDependencies": {
     "chai": "3.4.1",
-    "mocha": "2.3.4",
-    "temp": "^0.8.3"
+    "mocha": "2.3.4"
   }
 }
