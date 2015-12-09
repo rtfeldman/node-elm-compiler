@@ -14,6 +14,10 @@ $ node compileHelloWorld.js
 
 # Releases
 
+## 2.3.1
+
+Move `temp` dependency out of `devDependencies`
+
 ## 2.3.0
 
 Added #compileToString
