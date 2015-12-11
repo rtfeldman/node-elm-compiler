@@ -92,7 +92,6 @@ function findAllDependencies(file, knownDependencies) {
             var dependencyLogicalName = moduleName.replace(/\./g, "/");
 
             // e.g. ~/code/elm-css/src/Css/Declarations.elm
-            // TODO need to handle Native .js files in here...
             var result = path.join(baseDir, dependencyLogicalName)
 
             return _.contains(knownDependencies, result) ? null : result;
