@@ -1,4 +1,4 @@
-module ChildA (..) where
+module Test.ChildA (..) where
 
 import Graphics.Element exposing (show)
 

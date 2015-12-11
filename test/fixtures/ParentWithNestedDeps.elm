@@ -1,11 +1,11 @@
 module Parent (..) where
 
-import ChildA
+import Test.ChildA
 
 
 -- This is a comment in between two import statements.
 
-import NestedChild exposing (..)
+import Test.Sample.NestedChild exposing (..)
 
 
 main =

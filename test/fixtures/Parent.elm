@@ -1,11 +1,11 @@
 module Parent (..) where
 
-import ChildA
+import Test.ChildA
 
 
 -- This is a comment in between two import statements.
 
-import ChildB exposing (..)
+import Test.ChildB exposing (..)
 import Native.Child exposing (..)
 import Graphics.Element exposing (show)
 

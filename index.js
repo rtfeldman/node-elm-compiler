@@ -67,13 +67,16 @@ function compile(sources, options) {
 
 // Returns a Promise that returns a flat list of all the Elm files the given
 // Elm file depends on, based on the modules it loads via `import`.
-function findAllDependencies(file, knownDependencies) {
+function findAllDependencies(file, knownDependencies, baseDir) {
   if (!knownDependencies) {
     knownDependencies = [];
   }
 
+  if (!baseDir) {
+    baseDir = path.dirname(file);
+  }
+
   return new Promise(function(resolve, reject) {
-    var baseDir = path.dirname(file);
 
     fs.readFile(file, {encoding: "utf8"}, function(err, lines) {
       if (err) {
@@ -92,7 +95,6 @@ function findAllDependencies(file, knownDependencies) {
             var dependencyLogicalName = moduleName.replace(/\./g, "/");
 
             // e.g. ~/code/elm-css/src/Css/Declarations.elm
-            // TODO need to handle Native .js files in here...
             var result = path.join(baseDir, dependencyLogicalName)
 
             return _.contains(knownDependencies, result) ? null : result;
@@ -129,7 +131,7 @@ function findAllDependencies(file, knownDependencies) {
           var newDependencies = knownDependencies.concat(validDependencies);
           var recursePromises = _.compact(validDependencies.map(function(dependency) {
             return path.extname(dependency) === ".elm" ?
-              findAllDependencies(dependency, newDependencies) : null;
+              findAllDependencies(dependency, newDependencies, baseDir) : null;
           }));
 
           Promise.all(recursePromises).then(function(extraDependencies) {
