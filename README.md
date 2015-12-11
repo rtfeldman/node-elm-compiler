@@ -14,6 +14,11 @@ $ node compileHelloWorld.js
 
 # Releases
 
+## 2.3.2
+
+Fix bug related to converting module dots to directories in nested dependency
+resolution.
+
 ## 2.3.1
 
 Move `temp` dependency out of `devDependencies`
