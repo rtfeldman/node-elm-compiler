@@ -1,6 +1,6 @@
-module NestedChild (..) where
+module Test.Sample.NestedChild (..) where
 
-import ChildB
+import Test.ChildB
 import Native.Child exposing (..)
 
 
