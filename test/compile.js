@@ -24,3 +24,18 @@ describe("#compile", function() {
     });
   });
 });
+
+describe("#compileToString", function() {
+  it("works with --yes", function (done) {
+    // Use a timeout of 5 minutes because Travis on Linux can be SUPER slow.
+    this.timeout(300000);
+
+    var opts = {yes: true, verbose: true, cwd: fixturesDir};
+    var compilePromise = compiler.compileToString(prependFixturesDir("Parent.elm"), opts);
+
+    compilePromise.then(function(result) {
+      assert.isString(result.toString(), "Expected elm-make to return the result of the compilation");
+      done();
+    });
+  });
+});
