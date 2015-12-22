@@ -1,7 +1,6 @@
 var assert = require("chai").assert;
 var path = require("path");
 var compiler = require(path.join(__dirname, ".."));
-var childProcess = require("child_process");
 var _ = require("lodash");
 
 var fixturesDir = path.join(__dirname, "fixtures");

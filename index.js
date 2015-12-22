@@ -200,7 +200,7 @@ function escapePath(pathStr) {
 }
 
 // Converts an object of key/value pairs to an array of arguments suitable
-// to be passed to child_process.spawn for elm-make.
+// to be passed to spawn for elm-make.
 function compilerArgsFromOptions(options, logWarning) {
   return _.flatten(_.map(options, function(value, opt) {
     if (value) {
