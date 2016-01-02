@@ -164,6 +164,10 @@ function compileToString(sources, options){
       compile(sources, options)
         .on("close", function(exitCode){
           fs.readFile(info.path, function(err, data){
+            if (exitCode !== 0) {
+              err = "Compiler process exited with code " + exitCode;
+            }
+
             temp.cleanupSync();
 
             return err ? reject(err) : resolve(data);
