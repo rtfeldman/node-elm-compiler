@@ -14,6 +14,10 @@ $ node compileHelloWorld.js
 
 # Releases
 
+## 2.3.3
+
+Fix bug where nonzero exit codes were not rejecting promises.
+
 ## 2.3.2
 
 Fix bug related to converting module dots to directories in nested dependency
