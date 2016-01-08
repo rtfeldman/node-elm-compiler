@@ -15,6 +15,7 @@ var defaultOptions     = {
   yes:        undefined,
   help:       undefined,
   output:     undefined,
+  warn:       undefined,
   verbose:    false
 };
 
@@ -214,6 +215,7 @@ function compilerArgsFromOptions(options, emitWarning) {
         case "yes":    return ["--yes"];
         case "help":   return ["--help"];
         case "output": return ["--output", escapePath(value)];
+        case "warn":   return ["--warn"];
         default:
           if (supportedOptions.indexOf(opt) === -1) {
             emitWarning('Unknown Elm compiler option: ' + opt);
