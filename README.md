@@ -14,6 +14,10 @@ $ node compileHelloWorld.js
 
 # Releases
 
+## 3.0.0
+
+Passing the `warn` option now passes `--warn` to `elm-make`, and `emitWarning` now controls warning logging.
+
 ## 2.3.3
 
 Fix bug where nonzero exit codes were not rejecting promises.
