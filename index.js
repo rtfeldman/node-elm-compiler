@@ -8,13 +8,14 @@ var path = require("path");
 var temp = require("temp");
 
 var defaultOptions     = {
-  warn:       console.warn,
+  emitWarning: console.warn,
   spawn:      spawn,
   cwd:        undefined,
   pathToMake: undefined,
   yes:        undefined,
   help:       undefined,
   output:     undefined,
+  warn:       undefined,
   verbose:    false
 };
 
@@ -36,7 +37,7 @@ function compile(sources, options) {
     throw "options.spawn was a(n) " + (typeof options.spawn) + " instead of a function."
   }
 
-  var compilerArgs = compilerArgsFromOptions(options, options.warn);
+  var compilerArgs = compilerArgsFromOptions(options, options.emitWarning);
   var processArgs  = sources ? sources.concat(compilerArgs) : compilerArgs;
   var env = _.merge({LANG: 'en_US.UTF-8'}, process.env);
   var processOpts = _.merge({env: env, stdio: "inherit", cwd: options.cwd});
@@ -207,16 +208,17 @@ function escapePath(pathStr) {
 
 // Converts an object of key/value pairs to an array of arguments suitable
 // to be passed to child_process.spawn for elm-make.
-function compilerArgsFromOptions(options, logWarning) {
+function compilerArgsFromOptions(options, emitWarning) {
   return _.flatten(_.map(options, function(value, opt) {
     if (value) {
       switch(opt) {
         case "yes":    return ["--yes"];
         case "help":   return ["--help"];
         case "output": return ["--output", escapePath(value)];
+        case "warn":   return ["--warn"];
         default:
           if (supportedOptions.indexOf(opt) === -1) {
-            logWarning('Unknown Elm compiler option: ' + opt);
+            emitWarning('Unknown Elm compiler option: ' + opt);
           }
 
           return [];

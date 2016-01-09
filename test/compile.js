@@ -44,10 +44,10 @@ describe("#compile", function() {
     });
   });
 
-  it("invokes custom `warn`", function (done) {
+  it("invokes custom `emitWarning`", function (done) {
     var opts = {
       foo: "bar",
-      warn: chai.spy(),
+      emitWarning: chai.spy(),
       yes: true,
       output: "/dev/null",
       verbose: true,
@@ -56,8 +56,8 @@ describe("#compile", function() {
     var compileProcess = compiler.compile(prependFixturesDir("Parent.elm"), opts);
 
     compileProcess.on("exit", function(exitCode) {
-      var desc = "Expected warn to have been called";
-      expect(opts.warn, desc).to.have.been.called();
+      var desc = "Expected emitWarning to have been called";
+      expect(opts.emitWarning, desc).to.have.been.called();
       done();
     });
   });
@@ -97,10 +97,10 @@ describe("#compileToString", function() {
     });
   });
 
-  it("invokes custom `warn`", function (done) {
+  it("invokes custom `emitWarning`", function (done) {
     var opts = {
       foo: "bar",
-      warn: chai.spy(),
+      emitWarning: chai.spy(),
       yes: true,
       verbose: true,
       cwd: fixturesDir
@@ -108,8 +108,8 @@ describe("#compileToString", function() {
     var compilePromise = compiler.compileToString(prependFixturesDir("Parent.elm"), opts);
 
     compilePromise.then(function(err) {
-      var desc = "Expected warn to have been called";
-      expect(opts.warn, desc).to.have.been.called();
+      var desc = "Expected emitWarning to have been called";
+      expect(opts.emitWarning, desc).to.have.been.called();
       done();
     });
   });
