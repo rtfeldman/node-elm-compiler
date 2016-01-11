@@ -9,14 +9,15 @@ var temp = require("temp");
 
 var defaultOptions     = {
   emitWarning: console.warn,
-  spawn:      spawn,
-  cwd:        undefined,
-  pathToMake: undefined,
-  yes:        undefined,
-  help:       undefined,
-  output:     undefined,
-  warn:       undefined,
-  verbose:    false
+  spawn:       spawn,
+  compilerIO:  "inherit",
+  cwd:         undefined,
+  pathToMake:  undefined,
+  yes:         undefined,
+  help:        undefined,
+  output:      undefined,
+  warn:        undefined,
+  verbose:     false
 };
 
 var supportedOptions = _.keys(defaultOptions);
@@ -40,7 +41,7 @@ function compile(sources, options) {
   var compilerArgs = compilerArgsFromOptions(options, options.emitWarning);
   var processArgs  = sources ? sources.concat(compilerArgs) : compilerArgs;
   var env = _.merge({LANG: 'en_US.UTF-8'}, process.env);
-  var processOpts = _.merge({env: env, stdio: "inherit", cwd: options.cwd});
+  var processOpts = {env: env, stdio: options.compilerIO, cwd: options.cwd};
   var pathToMake = options.pathToMake || compilerBinaryName;
   var verbose = options.verbose;
 
