@@ -41,7 +41,7 @@ function compile(sources, options) {
   var compilerArgs = compilerArgsFromOptions(options, options.emitWarning);
   var processArgs  = sources ? sources.concat(compilerArgs) : compilerArgs;
   var env = _.merge({LANG: 'en_US.UTF-8'}, process.env);
-  var processOpts = _.merge({env: env, stdio: options.compilerIO, cwd: options.cwd});
+  var processOpts = {env: env, stdio: options.compilerIO, cwd: options.cwd};
   var pathToMake = options.pathToMake || compilerBinaryName;
   var verbose = options.verbose;
 
