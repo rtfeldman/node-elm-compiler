@@ -61,6 +61,26 @@ describe("#compile", function() {
       done();
     });
   });
+
+  it("captures compiler IO when piped", function(done) {
+    var opts = {
+      yes: true,
+      verbose: true,
+      cwd: fixturesDir,
+      compilerIO: 'pipe'
+    };
+    var stderrSpy = chai.spy();
+
+    var compileProcess = compiler.compile(prependFixturesDir("Bad.elm"), opts);
+
+    compileProcess.stderr.on("data", stderrSpy);
+
+    compileProcess.on("exit", function(exitCode) {
+      var desc = "Expected STDERR to have been captured";
+      expect(stderrSpy, desc).to.have.been.called();
+      done();
+    });
+  });
 });
 
 describe("#compileToString", function() {
