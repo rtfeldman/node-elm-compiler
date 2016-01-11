@@ -9,15 +9,15 @@ var temp = require("temp");
 
 var defaultOptions     = {
   emitWarning: console.warn,
-  spawn:      spawn,
-  compilerIO: "inherit",
-  cwd:        undefined,
-  pathToMake: undefined,
-  yes:        undefined,
-  help:       undefined,
-  output:     undefined,
-  warn:       undefined,
-  verbose:    false
+  spawn:       spawn,
+  compilerIO:  "inherit",
+  cwd:         undefined,
+  pathToMake:  undefined,
+  yes:         undefined,
+  help:        undefined,
+  output:      undefined,
+  warn:        undefined,
+  verbose:     false
 };
 
 var supportedOptions = _.keys(defaultOptions);
