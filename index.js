@@ -160,10 +160,12 @@ function checkSourceDirs(baseDir, newImport) {
     var newFile = path.join(dir, newImport.replace(newBase, ''));
     return new Promise(function(resolve, reject) {
       checkIsFile(newFile + ".elm").then(function(file) {
-        resolve(file[0])
+        resolve(file[0]);
       }).catch(function(err) {
         if (err.code === "ENOENT") {
           resolve('');
+        } else {
+          reject(err);
         }
       });
     });
