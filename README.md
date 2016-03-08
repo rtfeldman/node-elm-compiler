@@ -4,12 +4,18 @@ Wraps [Elm](https://elm-lang.org) and exposes a [Node](https://nodejs.org) API t
 
 Supports Elm versions 0.15 - 0.16
 
-# Example
+# Examples
 
 ```bash
 $ npm install
-$ cd examples
+$ cd examples/single-main
 $ node compileHelloWorld.js
+```
+
+```bash
+$ npm install
+$ cd examples/multiple-mains
+$ node compile.js
 ```
 
 # Releases
