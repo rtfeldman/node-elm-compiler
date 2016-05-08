@@ -67,7 +67,7 @@ describe("#compileToString", function() {
   // Use a timeout of 5 minutes because Travis on Linux can be SUPER slow.
   this.timeout(3000);
 
-  it("works with --yes", function (done) {
+  it("works with --yes", function () {
     var opts = {
       yes: true,
       verbose: true,
@@ -75,14 +75,13 @@ describe("#compileToString", function() {
     };
     var compilePromise = compiler.compileToString(prependFixturesDir("Parent.elm"), opts);
 
-    compilePromise.then(function(result) {
+    return compilePromise.then(function(result) {
       var desc = "Expected elm-make to return the result of the compilation";
       expect(result.toString(), desc).to.be.a('string');
-      done();
     });
   });
 
-  it("reports errors on bad source", function (done) {
+  it("reports errors on bad source", function () {
     var opts = {
       yes: true,
       verbose: true,
@@ -90,14 +89,13 @@ describe("#compileToString", function() {
     };
     var compilePromise = compiler.compileToString(prependFixturesDir("Bad.elm"), opts);
 
-    compilePromise.catch(function(err) {
+    return compilePromise.catch(function(err) {
       var desc = "Expected elm-make to have exit code 1";
       expect(err, desc).to.equal("Compiler process exited with code 1");
-      done();
     });
   });
 
-  it("invokes custom `emitWarning`", function (done) {
+  it("invokes custom `emitWarning`", function () {
     var opts = {
       foo: "bar",
       emitWarning: chai.spy(),
@@ -107,10 +105,9 @@ describe("#compileToString", function() {
     };
     var compilePromise = compiler.compileToString(prependFixturesDir("Parent.elm"), opts);
 
-    compilePromise.then(function(err) {
+    return compilePromise.then(function(err) {
       var desc = "Expected emitWarning to have been called";
       expect(opts.emitWarning, desc).to.have.been.called();
-      done();
     });
   });
 });
