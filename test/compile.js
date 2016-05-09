@@ -81,7 +81,7 @@ describe("#compileToString", function() {
     });
   });
 
-  it("reports errors on bad source", function () {
+  it("reports errors on bad syntax", function () {
     var opts = {
       yes: true,
       verbose: true,
@@ -90,8 +90,26 @@ describe("#compileToString", function() {
     var compilePromise = compiler.compileToString(prependFixturesDir("Bad.elm"), opts);
 
     return compilePromise.catch(function(err) {
-      var desc = "Expected elm-make to have exit code 1";
-      expect(err, desc).to.equal("Compiler process exited with code 1");
+      expect(err).to.be.an('error');
+      expect(String(err))
+        .to.contain("Compilation failed")
+        .and.contain("I ran into something unexpected when parsing your code!");
+    });
+  });
+
+  it("reports type errors", function () {
+    var opts = {
+      yes: true,
+      verbose: true,
+      cwd: fixturesDir
+    };
+    var compilePromise = compiler.compileToString(prependFixturesDir("TypeError.elm"), opts);
+
+    return compilePromise.catch(function(err) {
+      expect(err).to.be.an('error');
+      expect(String(err))
+        .to.contain("Compilation failed")
+        .and.contain("is causing a type mismatch");
     });
   });
 
