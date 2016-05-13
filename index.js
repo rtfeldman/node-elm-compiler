@@ -15,8 +15,10 @@ var defaultOptions     = {
   yes:        undefined,
   help:       undefined,
   output:     undefined,
+  report:     undefined,
   warn:       undefined,
-  verbose:    false
+  verbose:    false,
+  processOpts: undefined,
 };
 
 var supportedOptions = _.keys(defaultOptions);
@@ -40,7 +42,7 @@ function compile(sources, options) {
   var compilerArgs = compilerArgsFromOptions(options, options.emitWarning);
   var processArgs  = sources ? sources.concat(compilerArgs) : compilerArgs;
   var env = _.merge({LANG: 'en_US.UTF-8'}, process.env);
-  var processOpts = _.merge({env: env, stdio: "inherit", cwd: options.cwd});
+  var processOpts = _.merge({ env: env, stdio: "inherit", cwd: options.cwd }, options.processOpts);
   var pathToMake = options.pathToMake || compilerBinaryName;
   var verbose = options.verbose;
 
@@ -161,16 +163,26 @@ function compileToString(sources, options){
       }
 
       options.output = info.path;
+      options.processOpts = { stdio: 'pipe' }
 
-      compile(sources, options)
-        .on("close", function(exitCode){
-          fs.readFile(info.path, function(err, data){
-            if (exitCode !== 0) {
-              err = "Compiler process exited with code " + exitCode;
-            }
+      var compiler = compile(sources, options);
 
+      var output = '';
+      compiler.stdout.on('data', function(chunk) {
+        output += chunk;
+      });
+      compiler.stderr.on('data', function(chunk) {
+        output += chunk;
+      });
+
+      compiler.on("close", function(exitCode) {
+          if (exitCode !== 0) {
             temp.cleanupSync();
+            return reject(new Error('Compilation failed\n' + output));
+          }
 
+          fs.readFile(info.path, function(err, data){
+            temp.cleanupSync();
             return err ? reject(err) : resolve(data);
           });
         });
@@ -215,6 +227,7 @@ function compilerArgsFromOptions(options, emitWarning) {
         case "yes":    return ["--yes"];
         case "help":   return ["--help"];
         case "output": return ["--output", escapePath(value)];
+        case "report": return ["--report", value];
         case "warn":   return ["--warn"];
         default:
           if (supportedOptions.indexOf(opt) === -1) {
