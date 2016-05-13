@@ -65,7 +65,7 @@ describe("#compile", function() {
 
 describe("#compileToString", function() {
   // Use a timeout of 5 minutes because Travis on Linux can be SUPER slow.
-  this.timeout(3000);
+  this.timeout(300000);
 
   it("works with --yes", function () {
     var opts = {
@@ -132,7 +132,7 @@ describe("#compileToString", function() {
 
 describe("#compileWorker", function() {
   // Use a timeout of 5 minutes because Travis on Linux can be SUPER slow.
-  this.timeout(3000);
+  this.timeout(300000);
 
   it("works with BasicWorker.elm", function (done) {
     var opts = {
