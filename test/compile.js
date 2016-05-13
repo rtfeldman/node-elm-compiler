@@ -65,7 +65,7 @@ describe("#compile", function() {
 
 describe("#compileToString", function() {
   // Use a timeout of 5 minutes because Travis on Linux can be SUPER slow.
-  this.timeout(3000);
+  this.timeout(300000);
 
   it("works with --yes", function () {
     var opts = {
@@ -127,5 +127,33 @@ describe("#compileToString", function() {
       var desc = "Expected emitWarning to have been called";
       expect(opts.emitWarning, desc).to.have.been.called();
     });
+  });
+});
+
+describe("#compileWorker", function() {
+  // Use a timeout of 5 minutes because Travis on Linux can be SUPER slow.
+  this.timeout(300000);
+
+  it("works with BasicWorker.elm", function (done) {
+    var opts = {
+      yes: true,
+      verbose: true,
+      cwd: fixturesDir
+    };
+    var compilePromise = compiler.compileWorker(
+      prependFixturesDir(""),
+      prependFixturesDir("BasicWorker.elm"),
+      "BasicWorker"
+    );
+
+    return compilePromise.then(function(app) {
+      app.ports.report.subscribe(function(str) {
+        expect(str).to.equal("it's alive!");
+        done();
+      });
+    })
+    .catch(function (err) {
+      throw(err);
+    })
   });
 });

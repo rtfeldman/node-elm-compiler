@@ -244,6 +244,7 @@ function compilerArgsFromOptions(options, emitWarning) {
 
 module.exports = {
   compile: compile,
+  compileWorker: require("./worker.js")(compile),
   compileToString: compileToString,
   findAllDependencies: findAllDependencies
 };
