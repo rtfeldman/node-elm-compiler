@@ -129,3 +129,31 @@ describe("#compileToString", function() {
     });
   });
 });
+
+describe("#compileWorker", function() {
+  // Use a timeout of 5 minutes because Travis on Linux can be SUPER slow.
+  this.timeout(3000);
+
+  it("works with BasicWorker.elm", function (done) {
+    var opts = {
+      yes: true,
+      verbose: true,
+      cwd: fixturesDir
+    };
+    var compilePromise = compiler.compileWorker(
+      prependFixturesDir(""),
+      prependFixturesDir("BasicWorker.elm"),
+      "BasicWorker"
+    );
+
+    return compilePromise.then(function(app) {
+      app.ports.report.subscribe(function(str) {
+        expect(str).to.equal("it's alive!");
+        done();
+      });
+    })
+    .catch(function (err) {
+      throw(err);
+    })
+  });
+});
