@@ -1,7 +1,5 @@
-module Bad (..) where
-
-import Graphics.Element exposing (show)
+module Bad
 
 
 main =
-    show "Hello, World!
+   hello! I am a syntax error! :D

@@ -1,4 +1,4 @@
-module Parent (..) where
+module Parent exposing (..)
 
 import Test.ChildA
 

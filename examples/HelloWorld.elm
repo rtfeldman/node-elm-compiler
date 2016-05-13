@@ -1,5 +1,5 @@
-import Graphics.Element exposing (..)
+import Html exposing
 
-main : Element
+main : Html
 main =
-  show "Hello, World!"
+  Html.text "Hello, World!"

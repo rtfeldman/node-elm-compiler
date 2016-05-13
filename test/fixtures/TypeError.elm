@@ -1,7 +1,7 @@
-module TypeError (..) where
+module TypeError exposing (..)
 
-import Graphics.Element exposing (show)
+import Html
 
 
 main =
-  show (1 ++ "2")
+    Html.text (1 ++ "2")

@@ -5,7 +5,7 @@
   "authors": [
     "Richard Feldman <richard.t.feldman@gmail.com>"
   ],
-  "description": "A Node.js interface to the Elm compiler binaries. Supports Elm versions 0.15 - 0.16.",
+  "description": "A Node.js interface to the Elm compiler binaries. Supports Elm version 0.17",
   "main": "index.js",
   "keywords": [
     "elm",
