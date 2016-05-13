@@ -93,7 +93,7 @@ describe("#compileToString", function() {
       expect(err).to.be.an('error');
       expect(String(err))
         .to.contain("Compilation failed")
-        .and.contain("I ran into something unexpected when parsing your code!");
+        .and.contain("SYNTAX PROBLEM");
     });
   });
 
@@ -109,7 +109,7 @@ describe("#compileToString", function() {
       expect(err).to.be.an('error');
       expect(String(err))
         .to.contain("Compilation failed")
-        .and.contain("is causing a type mismatch");
+        .and.contain("TYPE MISMATCH");
     });
   });
 

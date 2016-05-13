@@ -1,7 +1,7 @@
-module Test.ChildA (..) where
+module Test.ChildA exposing (..)
 
-import Graphics.Element exposing (show)
+import Html
 
 
 main =
-    show "I am child A"
+    Html.text "I am child A"

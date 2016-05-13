@@ -1,4 +1,4 @@
-module Parent (..) where
+module Parent exposing (..)
 
 import Test.ChildA
 
@@ -7,8 +7,8 @@ import Test.ChildA
 
 import Test.ChildB exposing (..)
 import Native.Child exposing (..)
-import Graphics.Element exposing (show)
+import Html
 
 
 main =
-    show "Hello, World!"
+    Html.text "Hello, World!"
