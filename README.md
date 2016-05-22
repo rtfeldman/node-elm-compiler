@@ -14,6 +14,10 @@ $ node compileHelloWorld.js
 
 # Releases
 
+## 4.0.0
+
+Use an `Error` object for result errors instead of a string.
+
 ## 3.0.0
 
 Passing the `warn` option now passes `--warn` to `elm-make`, and `emitWarning` now controls warning logging.
