@@ -134,7 +134,7 @@ describe("#compileWorker", function() {
   // Use a timeout of 5 minutes because Travis on Linux can be SUPER slow.
   this.timeout(300000);
 
-  it("works with BasicWorker.elm", function (done) {
+  it("works with BasicWorker.elm", function() {
     var opts = {
       yes: true,
       verbose: true,
@@ -149,11 +149,7 @@ describe("#compileWorker", function() {
     return compilePromise.then(function(app) {
       app.ports.report.subscribe(function(str) {
         expect(str).to.equal("it's alive!");
-        done();
       });
-    })
-    .catch(function (err) {
-      throw(err);
     })
   });
 });

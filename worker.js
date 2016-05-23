@@ -1,5 +1,5 @@
 var fs = require("fs");
-var tmp = require("tmp");
+var temp = require("temp").track();
 var path = require("path");
 var jsEmitterFilename = "emitter.js";
 
@@ -58,7 +58,7 @@ module.exports = function(compile) {
 
 function createTmpDir() {
   return new Promise(function (resolve, reject) {
-    tmp.dir(function (err, tmpDirPath) {
+    temp.mkdir("node-elm-compiler", function (err, tmpDirPath) {
       if (err) {
         reject(err);
       } else {
