@@ -14,6 +14,10 @@ $ node compileHelloWorld.js
 
 # Releases
 
+## 4.0.1
+
+Fix missing `temp` dependency.
+
 ## 4.0.0
 
 Use an `Error` object for result errors instead of a string.
