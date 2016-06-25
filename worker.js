@@ -93,12 +93,7 @@ function noPortsMessage(moduleName){
   var errorMessage = "The module " + moduleName + " doesn't expose any ports!\n";
 
   errorMessage += "\n\nTry adding something like";
-  errorMessage += `
-port foo : Value
-port foo =
-  someValue
-to ${moduleName}!
-`;
+  errorMessage += "port foo : Value\nport foo =\n    someValue\n\nto " + moduleName + "!";
 
   return errorMessage.trim();
 }

@@ -64,8 +64,8 @@ describe("#compile", function() {
 });
 
 describe("#compileToString", function() {
-  // Use a timeout of 5 minutes because Travis on Linux can be SUPER slow.
-  this.timeout(300000);
+  // Use an epic timeout because Travis on Linux can be SUPER slow.
+  this.timeout(600000);
 
   it("works with --yes", function () {
     var opts = {

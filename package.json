@@ -1,6 +1,6 @@
 {
   "name": "node-elm-compiler",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "A Node.js interface to the Elm compiler binaries. Supports Elm version 0.17",
   "main": "index.js",
   "scripts": {
@@ -25,14 +25,14 @@
   },
   "homepage": "https://github.com/rtfeldman/node-elm-compiler",
   "dependencies": {
-    "cross-spawn": "2.1.0",
-    "lodash": "3.10.1",
+    "cross-spawn": "4.0.0",
+    "lodash": "4.13.1",
     "temp": "^0.8.3"
 
   },
   "devDependencies": {
-    "chai": "3.4.1",
+    "chai": "3.5.0",
     "chai-spies": "0.7.1",
-    "mocha": "2.3.4"
+    "mocha": "2.5.3"
   }
 }

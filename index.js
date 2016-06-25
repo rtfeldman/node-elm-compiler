@@ -100,7 +100,7 @@ function findAllDependencies(file, knownDependencies, baseDir) {
             // e.g. ~/code/elm-css/src/Css/Declarations.elm
             var result = path.join(baseDir, dependencyLogicalName)
 
-            return _.contains(knownDependencies, result) ? null : result;
+            return _.includes(knownDependencies, result) ? null : result;
           } else {
             return null;
           }
