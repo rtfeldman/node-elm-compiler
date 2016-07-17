@@ -75,7 +75,11 @@ function findAllDependencies(file, knownDependencies, baseDir) {
     baseDir = path.dirname(file);
   }
 
-  return findAllDependenciesInternal(knownDependencies, baseDir, [file]);
+  return findAllDependenciesInternal(knownDependencies, baseDir, [file]).then(function (result) {
+    // We know that very first entry in results is the file itself.
+    // It's not very convenient to have it there, so we simply drop it.
+    return _.drop(result);
+  });
 }
 
 function findAllDependenciesInternal(knownDependencies, baseDir, unresolvedDependencies) {
