@@ -179,6 +179,8 @@ function compileToString(sources, options){
           if (exitCode !== 0) {
             temp.cleanupSync();
             return reject(new Error('Compilation failed\n' + output));
+          } else if (options.verbose) {
+            console.log(output)
           }
 
           fs.readFile(info.path, function(err, data){
