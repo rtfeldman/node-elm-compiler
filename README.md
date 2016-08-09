@@ -14,6 +14,10 @@ $ node compileHelloWorld.js
 
 # Releases
 
+## 4.1.0
+
+Log elm-make output in verbose mode.
+
 ## 4.0.1
 
 Fix missing `temp` dependency.
