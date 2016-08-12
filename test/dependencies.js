@@ -24,4 +24,13 @@ describe("#findAllDependencies", function() {
       );
     });
   });
+
+  it("works for a non-root file with nested dependencies", function () {
+    return compiler.findAllDependencies(prependFixturesDir(
+        path.join("Nested", "Parent", "Test.elm"))).then(function(results) {
+      expect(results).to.deep.equal(
+        [ "Test/ChildA.elm", "Nested/Child.elm", "Nested/Test/Child.elm", "Test/Sample/NestedChild.elm", "Test/ChildB.elm", "Native/Child.js" ].map(prependFixturesDir)
+      );
+    });
+  });
 });
