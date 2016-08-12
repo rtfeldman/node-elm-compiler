@@ -8,6 +8,13 @@ var path = require("path");
 var temp = require("temp");
 var firstline = require("firstline");
 
+var elmPackage;
+try {
+  elmPackage = JSON.parse(fs.readFileSync('./elm-package.json').toString('utf8'));
+} catch (e) {
+  elmPackage = false;
+}
+
 var defaultOptions     = {
   emitWarning: console.warn,
   spawn:      spawn,
@@ -147,9 +154,11 @@ function findAllDependenciesHelp(file, knownDependencies, baseDir) {
                 // If we couldn't find the import as a .elm file, try as .js
                 checkIsFile(newImport + ".js").then(resolve).catch(function(secondErr) {
                   if (secondErr.code === "ENOENT") {
-                    // If we don't find the dependency in our filesystem, assume it's because
-                    // it comes in through a third-party package rather than our sources.
-                    resolve([]);
+                    if (elmPackage) {
+                      Promise.all(checkSourceDirs(baseDir, newImport)).then(resolve)
+                    } else {
+                      resolve([])
+                    }
                   } else {
                     reject(secondErr);
                   }
@@ -176,6 +185,25 @@ function findAllDependenciesHelp(file, knownDependencies, baseDir) {
       }
     });
   });
+}
+
+// Check for files in source dirs
+function checkSourceDirs(baseDir, newImport) {
+  return elmPackage["source-directories"].map(function(dir) {
+    var newBase = baseDir.replace(path.join(dir), "");
+    var newFile = path.join(dir, newImport.replace(newBase, ''));
+    return new Promise(function(resolve, reject) {
+      checkIsFile(newFile + ".elm").then(function(file) {
+        resolve(file[0]);
+      }).catch(function(err) {
+        if (err.code === "ENOENT") {
+          resolve('');
+        } else {
+          reject(err);
+        }
+      });
+    });
+  })
 }
 
 // write compiled Elm to a string output
