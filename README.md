@@ -14,6 +14,10 @@ $ node compileHelloWorld.js
 
 # Releases
 
+## 4.1.1
+
+Fix bug in dependency searches beginning with a non-root `Main` module.
+
 ## 4.1.0
 
 Log elm-make output in verbose mode.
