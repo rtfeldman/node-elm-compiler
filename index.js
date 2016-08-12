@@ -180,7 +180,7 @@ function compileToString(sources, options){
             temp.cleanupSync();
             return reject(new Error('Compilation failed\n' + output));
           } else if (options.verbose) {
-            console.log(output)
+            console.log(output);
           }
 
           fs.readFile(info.path, function(err, data){
