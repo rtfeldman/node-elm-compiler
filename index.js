@@ -6,6 +6,7 @@ var compilerBinaryName = "elm-make";
 var fs = require("fs");
 var path = require("path");
 var temp = require("temp");
+var firstline = require("firstline");
 
 var defaultOptions     = {
   emitWarning: console.warn,
@@ -68,6 +69,32 @@ function compile(sources, options) {
   }
 }
 
+function getBaseDir(file) {
+  return firstline(file).then(function(line) {
+    return new Promise(function(resolve, reject) {
+      var matches = line.match(/^module\s+([^\s]+)/);
+
+      if (matches) {
+        // e.g. Css.Declarations
+        var moduleName = matches[1];
+
+        // e.g. Css/Declarations
+        var dependencyLogicalName = moduleName.replace(/\./g, "/");
+
+        // e.g. ../..
+        var backedOut = dependencyLogicalName.replace(/[^/]+/g, "..");
+
+        // e.g. /..
+        var trimmedBackedOut = backedOut.replace(/^../, "");
+
+        return resolve(path.normalize(path.dirname(file) + trimmedBackedOut));
+      }
+
+      return reject(file + " is not a syntactically valid Elm module. Try running elm-make on it manually to figure out what the problem is.");
+    });
+  });
+}
+
 // Returns a Promise that returns a flat list of all the Elm files the given
 // Elm file depends on, based on the modules it loads via `import`.
 function findAllDependencies(file, knownDependencies, baseDir) {
@@ -75,12 +102,17 @@ function findAllDependencies(file, knownDependencies, baseDir) {
     knownDependencies = [];
   }
 
-  if (!baseDir) {
-    baseDir = path.dirname(file);
+  if (baseDir) {
+    return findAllDependenciesHelp(file, knownDependencies, baseDir);
+  } else {
+    return getBaseDir(file).then(function(newBaseDir) {
+      return findAllDependenciesHelp(file, knownDependencies, newBaseDir);
+    });
   }
+}
 
+function findAllDependenciesHelp(file, knownDependencies, baseDir) {
   return new Promise(function(resolve, reject) {
-
     fs.readFile(file, {encoding: "utf8"}, function(err, lines) {
       if (err) {
         reject(err);
@@ -134,7 +166,7 @@ function findAllDependencies(file, knownDependencies, baseDir) {
           var newDependencies = knownDependencies.concat(validDependencies);
           var recursePromises = _.compact(validDependencies.map(function(dependency) {
             return path.extname(dependency) === ".elm" ?
-              findAllDependencies(dependency, newDependencies, baseDir) : null;
+              findAllDependenciesHelp(dependency, newDependencies, baseDir) : null;
           }));
 
           Promise.all(recursePromises).then(function(extraDependencies) {
@@ -180,7 +212,7 @@ function compileToString(sources, options){
             temp.cleanupSync();
             return reject(new Error('Compilation failed\n' + output));
           } else if (options.verbose) {
-            console.log(output)
+            console.log(output);
           }
 
           fs.readFile(info.path, function(err, data){
