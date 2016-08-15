@@ -14,6 +14,10 @@ $ node compileHelloWorld.js
 
 # Releases
 
+## 4.1.2
+
+Support checking dependencies for modules with no module declaration.
+
 ## 4.1.1
 
 Fix bug in dependency searches beginning with a non-root `Main` module.
