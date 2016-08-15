@@ -88,6 +88,15 @@ function getBaseDir(file) {
         var trimmedBackedOut = backedOut.replace(/^../, "");
 
         return resolve(path.normalize(path.dirname(file) + trimmedBackedOut));
+      } else if (!line.match(/^module\s/)) {
+        // Technically you're allowed to omit the module declaration for
+        // beginner applications where it'd just be `module Main exposing (..)`
+        // If there is no module declaration, we'll assume we have one of these,
+        // and succeed with the file's directory itself.
+        //
+        // See https://github.com/rtfeldman/node-elm-compiler/pull/36
+
+        return resolve(path.dirname(file));
       }
 
       return reject(file + " is not a syntactically valid Elm module. Try running elm-make on it manually to figure out what the problem is.");
