@@ -9,6 +9,13 @@ function prependFixturesDir(filename) {
 }
 
 describe("#findAllDependencies", function() {
+
+  it("works for a main file without an explicit module statement", function () {
+    return compiler.findAllDependencies(prependFixturesDir("SimplestMain.elm")).then(function(results) {
+      expect(results).to.deep.equal([])
+    });
+  });
+
   it("works for a file with three dependencies", function () {
     return compiler.findAllDependencies(prependFixturesDir("Parent.elm")).then(function(results) {
       expect(results).to.deep.equal(
