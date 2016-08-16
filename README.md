@@ -14,6 +14,10 @@ $ node compileHelloWorld.js
 
 # Releases
 
+## 4.1.3
+
+Use utf-8 encoding for `compileToString`
+
 ## 4.1.2
 
 Support checking dependencies for modules with no module declaration.
