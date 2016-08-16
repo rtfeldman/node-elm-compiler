@@ -208,6 +208,9 @@ function compileToString(sources, options){
 
       var compiler = compile(sources, options);
 
+      compiler.stdout.setEncoding("utf8");
+      compiler.stderr.setEncoding("utf8");
+
       var output = '';
       compiler.stdout.on('data', function(chunk) {
         output += chunk;
@@ -224,7 +227,7 @@ function compileToString(sources, options){
             console.log(output);
           }
 
-          fs.readFile(info.path, function(err, data){
+          fs.readFile(info.path, {encoding: "utf8"}, function(err, data){
             temp.cleanupSync();
             return err ? reject(err) : resolve(data);
           });
