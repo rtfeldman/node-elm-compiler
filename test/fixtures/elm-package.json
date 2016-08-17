@@ -4,7 +4,8 @@
     "repository": "https://github.com/foo/bar.git",
     "license": "BSD3",
     "source-directories": [
-        "."
+        ".",
+        "../moreFixtures"
     ],
     "native-modules": true,
     "exposed-modules": [],

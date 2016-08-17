@@ -2,11 +2,15 @@ var expect = require("chai").expect;
 var path = require("path");
 var compiler = require(path.join(__dirname, ".."));
 
-var fixturesDir = path.join(__dirname, "fixtures");
-
-function prependFixturesDir(filename) {
-  return path.join(fixturesDir, filename);
+function prependDir(fixtureDir) {
+  return function(filename) {
+    var fixturesDir = path.join(__dirname, fixtureDir);
+    return path.join(fixturesDir, filename);
+  }
 }
+
+var prependFixturesDir = prependDir("fixtures");
+var prependMoreFixturesDir = prependDir("moreFixtures");
 
 describe("#findAllDependencies", function() {
 
@@ -37,6 +41,14 @@ describe("#findAllDependencies", function() {
         path.join("Nested", "Parent", "Test.elm"))).then(function(results) {
       expect(results).to.deep.equal(
         [ "Test/ChildA.elm", "Nested/Child.elm", "Nested/Test/Child.elm", "Test/Sample/NestedChild.elm", "Test/ChildB.elm", "Native/Child.js" ].map(prependFixturesDir)
+      );
+    });
+  });
+
+  it("works for a file with dependencies defined via source-directories in elm-package.json", function () {
+    return compiler.findAllDependencies(prependFixturesDir("ParentWithSourceDirectoriesDeps.elm")).then(function(results) {
+      expect(results).to.deep.equal(
+          [ "Sibling.elm", "AnotherTest/Cousin.elm" ].map(prependMoreFixturesDir)
       );
     });
   });
