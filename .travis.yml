@@ -1,25 +1,17 @@
 sudo: false
 
+cache:
+  directories:
+    - test/elm-stuff/build-artifacts
+
 os:
   - linux
   - osx
 
-addons:
-  apt:
-    sources:
-      - hvr-ghc
-    packages:
-      - ghc-7.10.1
-      - cabal-install-1.22
-      - happy
-      - alex
-      - nodejs
-      - npm
-
 env:
   matrix:
-    - ELM_VERSION=0.17.0 TARGET_NODE_VERSION=node
-    - ELM_VERSION=0.17.0 TARGET_NODE_VERSION=0.12
+    - ELM_VERSION=0.17.1 TARGET_NODE_VERSION=node
+    - ELM_VERSION=0.17.1 TARGET_NODE_VERSION=0.12
 
 before_install:
   - if [ ${TRAVIS_OS_NAME} == "osx" ];
