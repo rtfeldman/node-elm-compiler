@@ -14,6 +14,10 @@ $ node compileHelloWorld.js
 
 # Releases
 
+## 4.1.4
+
+`findAllDependencies` now supports `port module` files.
+
 ## 4.1.3
 
 Use utf-8 encoding for `compileToString`
