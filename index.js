@@ -72,7 +72,7 @@ function compile(sources, options) {
 function getBaseDir(file) {
   return firstline(file).then(function(line) {
     return new Promise(function(resolve, reject) {
-      var matches = line.match(/^module\s+([^\s]+)/);
+      var matches = line.match(/^(?:port\s+)?module\s+([^\s]+)/);
 
       if (matches) {
         // e.g. Css.Declarations
@@ -88,7 +88,7 @@ function getBaseDir(file) {
         var trimmedBackedOut = backedOut.replace(/^../, "");
 
         return resolve(path.normalize(path.dirname(file) + trimmedBackedOut));
-      } else if (!line.match(/^module\s/)) {
+      } else if (!line.match(/^(?:port\s+)?module\s/)) {
         // Technically you're allowed to omit the module declaration for
         // beginner applications where it'd just be `module Main exposing (..)`
         // If there is no module declaration, we'll assume we have one of these,

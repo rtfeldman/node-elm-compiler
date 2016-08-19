@@ -16,7 +16,15 @@ describe("#findAllDependencies", function() {
     });
   });
 
-  it("works for a file with three dependencies", function () {
+  it("works for a port module with three dependencies", function () {
+    return compiler.findAllDependencies(prependFixturesDir("ParentWithPort.elm")).then(function(results) {
+      expect(results).to.deep.equal(
+        [ "Test/ChildA.elm", "Test/ChildB.elm", "Native/Child.js" ].map(prependFixturesDir)
+      );
+    });
+  });
+
+  it("works for a non-port module with three dependencies", function () {
     return compiler.findAllDependencies(prependFixturesDir("Parent.elm")).then(function(results) {
       expect(results).to.deep.equal(
         [ "Test/ChildA.elm", "Test/ChildB.elm", "Native/Child.js" ].map(prependFixturesDir)
