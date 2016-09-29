@@ -4,6 +4,7 @@ var path = require("path");
 var compiler = require(path.join(__dirname, ".."));
 var childProcess = require("child_process");
 var _ = require("lodash");
+var temp = require("temp");
 
 chai.use(spies);
 
@@ -127,6 +128,32 @@ describe("#compileToString", function() {
       var desc = "Expected emitWarning to have been called";
       expect(opts.emitWarning, desc).to.have.been.called();
     });
+  });
+
+
+  it("works when run multiple times", function () {
+    var opts = {
+      yes: true,
+      verbose: true,
+      cwd: fixturesDir
+    };
+
+    var runCompile = function() {
+      // running compileToString right after each other can cause raceconditions
+      // the problem is that temp.cleanupSync removes all tempfiles
+      compiler.compileToString(prependFixturesDir("Parent.elm"), opts)
+      var compilePromise = compiler.compileToString(prependFixturesDir("Parent.elm"), opts)
+
+      return compilePromise.then(function(result) {
+        var desc = "Expected elm-make to return the result of the compilation";
+        expect(result.toString(), desc).to.be.a('string');
+      });
+    };
+    var promises = [];
+    for (var i = 0; i < 10; i++) {
+      promises.push(runCompile());
+    }
+    return Promise.all(promises);
   });
 });
 
