@@ -5,7 +5,7 @@ var _ = require("lodash");
 var compilerBinaryName = "elm-make";
 var fs = require("fs");
 var path = require("path");
-var temp = require("temp");
+var temp = require("temp").track();
 var firstline = require("firstline");
 
 var defaultOptions     = {
@@ -221,14 +221,12 @@ function compileToString(sources, options){
 
       compiler.on("close", function(exitCode) {
           if (exitCode !== 0) {
-            temp.cleanupSync();
             return reject(new Error('Compilation failed\n' + output));
           } else if (options.verbose) {
             console.log(output);
           }
 
           fs.readFile(info.path, {encoding: "utf8"}, function(err, data){
-            temp.cleanupSync();
             return err ? reject(err) : resolve(data);
           });
         });
