@@ -131,7 +131,7 @@ describe("#compileToString", function() {
   });
 
 
-  it.skip("works when run multiple times", function () {
+  it("works when run multiple times", function () {
     var opts = {
       yes: true,
       verbose: true,
