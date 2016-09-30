@@ -14,6 +14,10 @@ $ node compileHelloWorld.js
 
 # Releases
 
+## 4.1.5
+
+Clean up temporary directories more safely.
+
 ## 4.1.4
 
 `findAllDependencies` now supports `port module` files.
