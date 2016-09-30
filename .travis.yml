@@ -4,6 +4,7 @@ cache:
   directories:
     - test/elm-stuff/build-artifacts
     - sysconfcpus
+    - $(npm config get prefix)/bin
 
 os:
   - linux
@@ -18,6 +19,17 @@ before_install:
   - if [ ${TRAVIS_OS_NAME} == "osx" ];
     then brew update; brew install nvm; mkdir ~/.nvm; export NVM_DIR=~/.nvm; source $(brew --prefix nvm)/nvm.sh;
     fi
+
+install:
+  - nvm install $TARGET_NODE_VERSION
+  - nvm use $TARGET_NODE_VERSION
+  - node --version
+  - npm --version
+  - | # install the elm platform unless we already have a cached copy
+    if [ ! -d $(npm config get prefix)/bin/elm-make ];
+    then
+      npm install -g elm@$ELM_VERSION
+    fi
   - | # epic build time improvement - see https://github.com/elm-lang/elm-compiler/issues/1473#issuecomment-245704142
     if [ ! -d sysconfcpus/bin ];
     then
@@ -26,14 +38,10 @@ before_install:
       ./configure --prefix=$TRAVIS_BUILD_DIR/sysconfcpus;
       make && make install;
       cd ..;
+      mv $(npm config get prefix)/bin/elm-make $(npm config get prefix)/bin/elm-make-old
+      echo "#\!/bin/bash\\n\\necho \"Running elm-make with sysconfcpus -n 2\"\\n\\n$TRAVIS_BUILD_DIR/sysconfcpus/bin/sysconfcpus -n 2 elm-make-old \"\$@\"" > $(npm config get prefix)/bin/elm-make
+      chmod +x $(npm config get prefix)/bin/elm-make
     fi
-
-install:
-  - nvm install $TARGET_NODE_VERSION
-  - nvm use $TARGET_NODE_VERSION
-  - node --version
-  - npm --version
-  - npm install -g elm@$ELM_VERSION
   - npm install
 
 script:
