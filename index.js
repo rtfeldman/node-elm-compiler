@@ -18,6 +18,7 @@ var defaultOptions     = {
   output:     undefined,
   report:     undefined,
   warn:       undefined,
+  debug:      undefined,
   verbose:    false,
   processOpts: undefined,
 };
@@ -273,6 +274,7 @@ function compilerArgsFromOptions(options, emitWarning) {
         case "output": return ["--output", escapePath(value)];
         case "report": return ["--report", value];
         case "warn":   return ["--warn"];
+        case "debug":  return ["--debug"];
         default:
           if (supportedOptions.indexOf(opt) === -1) {
             emitWarning('Unknown Elm compiler option: ' + opt);
