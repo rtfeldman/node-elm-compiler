@@ -14,6 +14,10 @@ $ node compileHelloWorld.js
 
 # Releases
 
+## 4.2.0
+
+Add support for `--debug` flag.
+
 ## 4.1.5
 
 Clean up temporary directories more safely.
