@@ -7,7 +7,7 @@ var fs = require("fs");
 var path = require("path");
 var temp = require("temp").track();
 var firstline = require("firstline");
-var depsLoader = require('dependencies.js');
+var depsLoader = require('./dependencies.js');
 
 var defaultOptions     = {
   emitWarning: console.warn,
@@ -136,7 +136,7 @@ function findAllDependenciesHelp(file, knownDependencies, baseDir, knownFiles) {
       return resolve(knownDependencies);
     }
     // read the imports then parse each of them
-    _deps.readImports(file).then(function(lines){
+    depsLoader.readImports(file).then(function(lines){
         // Turn e.g. ~/code/elm-css/src/Css.elm
         // into just ~/code/elm-css/src/
         var newImports = _.compact(lines.map(function(line) {
