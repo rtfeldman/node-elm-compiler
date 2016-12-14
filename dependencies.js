@@ -19,7 +19,7 @@ function readImports(file){
             if (chunk.indexOf('\n') > -1){
                 var lines = buffer.split('\n');
 
-                lines.slice(0, lines.length - 1).forEach(parser.parseLine);
+                lines.slice(0, lines.length - 1).forEach(parser.parseLine.bind(parser));
                 buffer = lines[lines.length - 1];
 
                 // end the stream early if we're past the imports
