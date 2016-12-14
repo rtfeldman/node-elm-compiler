@@ -44,7 +44,12 @@ function Parser(){
     this.parseLine = function(line){
         if (parsingDone) return;
 
-        if (!moduleRead && line.indexOf('module ') === 0){
+        if (!moduleRead &&
+            (line.startsWith('module ')
+                || line.startsWith('port module')
+                || line.startsWith('effect module')
+            )
+        ) {
             moduleRead = true;
         } else if (moduleRead && line.indexOf('import ') === 0){
             readingImports = true;
@@ -53,8 +58,15 @@ function Parser(){
         if (readingImports){
             if (line.indexOf('import ') === 0){
                 imports.push(line);
-            } else if (line.indexOf(' ') === 0 || line.trim().length === 0) {
+            } else if (
+                line.indexOf(' ') === 0
+                || line.trim().length === 0
+                || line.startsWith('--')
+                || line.startsWith('{-')
+                || line.startsWith('-}')
+                ) {
                 // ignore lines starting with whitespace while parsing imports
+                // and start and end of comments
             } else {
                 // console.log('detected end of imports', line);
                 parsingDone = true;
