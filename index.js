@@ -7,6 +7,7 @@ var fs = require("fs");
 var path = require("path");
 var temp = require("temp").track();
 var firstline = require("firstline");
+var depsLoader = require('dependencies.js');
 
 var defaultOptions     = {
   emitWarning: console.warn,
@@ -107,29 +108,38 @@ function getBaseDir(file) {
 
 // Returns a Promise that returns a flat list of all the Elm files the given
 // Elm file depends on, based on the modules it loads via `import`.
-function findAllDependencies(file, knownDependencies, baseDir) {
+function findAllDependencies(file, knownDependencies, baseDir, knownFiles) {
   if (!knownDependencies) {
     knownDependencies = [];
   }
 
+  if (typeof knownFiles === "undefined"){
+    knownFiles = [];
+  } else if (knownFiles.indexOf(file) > -1){
+    return knownDependencies;
+  }
+
   if (baseDir) {
-    return findAllDependenciesHelp(file, knownDependencies, baseDir);
+    return findAllDependenciesHelp(file, knownDependencies, baseDir, knownFiles);
   } else {
     return getBaseDir(file).then(function(newBaseDir) {
-      return findAllDependenciesHelp(file, knownDependencies, newBaseDir);
+      return findAllDependenciesHelp(file, knownDependencies, newBaseDir, knownFiles);
     });
   }
 }
 
-function findAllDependenciesHelp(file, knownDependencies, baseDir) {
+
+function findAllDependenciesHelp(file, knownDependencies, baseDir, knownFiles) {
   return new Promise(function(resolve, reject) {
-    fs.readFile(file, {encoding: "utf8"}, function(err, lines) {
-      if (err) {
-        reject(err);
-      } else {
+    // if we already know the file, return known deps since we won't learn anything
+    if (knownFiles.indexOf(file) !== -1){
+      return resolve(knownDependencies);
+    }
+    // read the imports then parse each of them
+    _deps.readImports(file).then(function(lines){
         // Turn e.g. ~/code/elm-css/src/Css.elm
         // into just ~/code/elm-css/src/
-        var newImports = _.compact(lines.split("\n").map(function(line) {
+        var newImports = _.compact(lines.map(function(line) {
           var matches = line.match(/^import\s+([^\s]+)/);
 
           if (matches) {
@@ -171,19 +181,20 @@ function findAllDependenciesHelp(file, knownDependencies, baseDir) {
           });
         });
 
+        knownFiles.push(file);
+
         Promise.all(promises).then(function(nestedValidDependencies) {
           var validDependencies = _.flatten(nestedValidDependencies);
           var newDependencies = knownDependencies.concat(validDependencies);
           var recursePromises = _.compact(validDependencies.map(function(dependency) {
             return path.extname(dependency) === ".elm" ?
-              findAllDependenciesHelp(dependency, newDependencies, baseDir) : null;
+              findAllDependenciesHelp(dependency, newDependencies, baseDir, knownFiles) : null;
           }));
 
           Promise.all(recursePromises).then(function(extraDependencies) {
             resolve(_.uniq(_.flatten(newDependencies.concat(extraDependencies))));
           }).catch(reject);
         }).catch(reject);
-      }
     });
   });
 }
