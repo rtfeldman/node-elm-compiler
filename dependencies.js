@@ -81,6 +81,8 @@ function Parser(){
     this.isPastImports = function(){
         return parsingDone;
     }
+
+    return this;
 }
 
 
