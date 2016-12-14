@@ -143,7 +143,6 @@ function findAllDependenciesHelp(file, knownDependencies, baseDir, knownFiles) {
           var matches = line.match(/^import\s+([^\s]+)/);
 
           if (matches) {
-            console.log(matches);
             // e.g. Css.Declarations
             var moduleName = matches[1];
 
