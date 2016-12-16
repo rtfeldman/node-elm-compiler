@@ -14,6 +14,10 @@ $ node compileHelloWorld.js
 
 # Releases
 
+## 4.2.1
+
+Epic perf improvements from @eeue56
+
 ## 4.2.0
 
 Add support for `--debug` flag.
