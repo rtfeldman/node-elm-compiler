@@ -11,6 +11,7 @@ function readImports(file){
         var parser = new Parser();
 
         stream.on('error', function () {
+            // failed to process the file, so return null
             resolve(null);
         });
 
