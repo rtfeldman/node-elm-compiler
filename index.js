@@ -7,6 +7,8 @@ var fs = require("fs");
 var path = require("path");
 var temp = require("temp").track();
 var firstline = require("firstline");
+var depsLoader = require('./dependencies.js');
+var glob = require("glob");
 
 var defaultOptions     = {
   emitWarning: console.warn,
@@ -107,84 +109,114 @@ function getBaseDir(file) {
 
 // Returns a Promise that returns a flat list of all the Elm files the given
 // Elm file depends on, based on the modules it loads via `import`.
-function findAllDependencies(file, knownDependencies, baseDir) {
+function findAllDependencies(file, knownDependencies, baseDir, knownFiles) {
   if (!knownDependencies) {
     knownDependencies = [];
   }
 
+  if (typeof knownFiles === "undefined"){
+    knownFiles = [];
+  } else if (knownFiles.indexOf(file) > -1){
+    return knownDependencies;
+  }
+
   if (baseDir) {
-    return findAllDependenciesHelp(file, knownDependencies, baseDir);
+    return findAllDependenciesHelp(file, knownDependencies, baseDir, knownFiles).then(function(thing){
+      return thing.knownDependencies;
+    });
   } else {
     return getBaseDir(file).then(function(newBaseDir) {
-      return findAllDependenciesHelp(file, knownDependencies, newBaseDir);
-    });
+      return findAllDependenciesHelp(file, knownDependencies, newBaseDir, knownFiles).then(function(thing){
+        return thing.knownDependencies;
+      });
+    })
   }
 }
 
-function findAllDependenciesHelp(file, knownDependencies, baseDir) {
+
+function findAllDependenciesHelp(file, knownDependencies, baseDir, knownFiles) {
   return new Promise(function(resolve, reject) {
-    fs.readFile(file, {encoding: "utf8"}, function(err, lines) {
-      if (err) {
-        reject(err);
-      } else {
-        // Turn e.g. ~/code/elm-css/src/Css.elm
-        // into just ~/code/elm-css/src/
-        var newImports = _.compact(lines.split("\n").map(function(line) {
+    // if we already know the file, return known deps since we won't learn anything
+    if (knownFiles.indexOf(file) !== -1){
+      return resolve({
+        file: file,
+        error: false,
+        knownDependencies: knownDependencies
+      });
+    }
+    // read the imports then parse each of them
+    depsLoader.readImports(file).then(function(lines){
+        // when lines is null, the file was not read so we just return what we know
+        // and flag the error state
+        if (lines === null){
+          return resolve({
+            file: file,
+            error: true,
+            knownDependencies: knownDependencies
+          });
+        }
+
+        var newImports = _.compact(lines.map(function(line) {
           var matches = line.match(/^import\s+([^\s]+)/);
 
-          if (matches) {
-            // e.g. Css.Declarations
-            var moduleName = matches[1];
-
-            // e.g. Css/Declarations
-            var dependencyLogicalName = moduleName.replace(/\./g, "/");
-
-            // e.g. ~/code/elm-css/src/Css/Declarations.elm
-            var result = path.join(baseDir, dependencyLogicalName)
-
-            return _.includes(knownDependencies, result) ? null : result;
-          } else {
+          // if the line is not actually an import line
+          if (!matches) {
             return null;
           }
+
+          // e.g. Css.Declarations
+          var moduleName = matches[1];
+
+          // e.g. Css/Declarations
+          var dependencyLogicalName = moduleName.replace(/\./g, "/");
+
+          // all non-native modules are .elm
+          var extension = ".elm";
+          // all native modules are .js
+          if (moduleName.startsWith("Native.")){
+            extension = ".js";
+          }
+
+          // e.g. ~/code/elm-css/src/Css/Declarations.elm
+          var result = path.join(baseDir, dependencyLogicalName + extension);
+
+          return _.includes(knownDependencies, result) ? null : result;
+
         }));
 
-        var promises = newImports.map(function(newImport) {
-          var elmFile = newImport + ".elm";
+        knownFiles.push(file);
 
-          return new Promise(function(resolve, reject) {
-            return checkIsFile(newImport + ".elm").then(resolve).catch(function(firstErr) {
-              if (firstErr.code === "ENOENT") {
-                // If we couldn't find the import as a .elm file, try as .js
-                checkIsFile(newImport + ".js").then(resolve).catch(function(secondErr) {
-                  if (secondErr.code === "ENOENT") {
-                    // If we don't find the dependency in our filesystem, assume it's because
-                    // it comes in through a third-party package rather than our sources.
-                    resolve([]);
-                  } else {
-                    reject(secondErr);
-                  }
-                })
-              } else {
-                reject(firstErr);
-              }
-            });
+        var validDependencies = _.flatten(newImports);
+        var newDependencies = knownDependencies.concat(validDependencies);
+        var recursePromises = _.compact(validDependencies.map(function(dependency) {
+          return path.extname(dependency) === ".elm" ?
+            findAllDependenciesHelp(dependency, newDependencies, baseDir, knownFiles) : null;
+        }));
+
+        Promise.all(recursePromises).then(function(extraDependencies) {
+          // keep track of files that weren't found in our src directory
+          var externalPackageFiles = [];
+
+          var justDeps = extraDependencies.map(function(thing){
+            // if we had an error, we flag the file as a bad thing
+            if (thing.error){
+              externalPackageFiles.push(thing.file)
+              return [];
+            }
+            return thing.knownDependencies;
           });
-        });
 
-        Promise.all(promises).then(function(nestedValidDependencies) {
-          var validDependencies = _.flatten(nestedValidDependencies);
-          var newDependencies = knownDependencies.concat(validDependencies);
-          var recursePromises = _.compact(validDependencies.map(function(dependency) {
-            return path.extname(dependency) === ".elm" ?
-              findAllDependenciesHelp(dependency, newDependencies, baseDir) : null;
-          }));
+          var flat = _.uniq(_.flatten(knownDependencies.concat(justDeps))).filter(function(file){
+            return externalPackageFiles.indexOf(file) === -1;
+          });
 
-          Promise.all(recursePromises).then(function(extraDependencies) {
-            resolve(_.uniq(_.flatten(newDependencies.concat(extraDependencies))));
-          }).catch(reject);
+          resolve({
+            file: file,
+            error: false,
+            knownDependencies: flat
+          });
         }).catch(reject);
-      }
-    });
+    }).catch(reject);
   });
 }
 
@@ -231,20 +263,6 @@ function compileToString(sources, options){
             return err ? reject(err) : resolve(data);
           });
         });
-    });
-  });
-}
-
-function checkIsFile(file) {
-  return new Promise(function(resolve, reject) {
-    fs.stat(file, function(err, stats) {
-      if (err) {
-        reject(err);
-      } else if (stats.isFile()) {
-        resolve([file]);
-      } else {
-        resolve([]);
-      }
     });
   });
 }
