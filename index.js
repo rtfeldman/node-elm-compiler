@@ -140,42 +140,48 @@ function findAllDependenciesHelp(file, knownDependencies, baseDir, knownFiles) {
     if (knownFiles.indexOf(file) !== -1){
       return resolve({
         file: file,
+        error: false,
         knownDependencies: knownDependencies
       });
     }
     // read the imports then parse each of them
     depsLoader.readImports(file).then(function(lines){
+        // when lines is null, the file was not read so we just return what we know
+        // and flag the error state
         if (lines === null){
           return resolve({
-            file: null,
+            file: file,
+            error: true,
             knownDependencies: knownDependencies
           });
         }
 
-        // Turn e.g. ~/code/elm-css/src/Css.elm
-        // into just ~/code/elm-css/src/
         var newImports = _.compact(lines.map(function(line) {
           var matches = line.match(/^import\s+([^\s]+)/);
 
-          if (matches) {
-            // e.g. Css.Declarations
-            var moduleName = matches[1];
-
-            // e.g. Css/Declarations
-            var dependencyLogicalName = moduleName.replace(/\./g, "/");
-
-            var extension = ".elm";
-            if (moduleName.startsWith("Native.")){
-              extension = ".js";
-            }
-
-            // e.g. ~/code/elm-css/src/Css/Declarations
-            var result = path.join(baseDir, dependencyLogicalName + extension);
-
-            return _.includes(knownDependencies, result) ? null : result;
-          } else {
+          // if the line is not actually an import line
+          if (!matches) {
             return null;
           }
+
+          // e.g. Css.Declarations
+          var moduleName = matches[1];
+
+          // e.g. Css/Declarations
+          var dependencyLogicalName = moduleName.replace(/\./g, "/");
+
+          // all non-native modules are .elm
+          var extension = ".elm";
+          // all native modules are .js
+          if (moduleName.startsWith("Native.")){
+            extension = ".js";
+          }
+
+          // e.g. ~/code/elm-css/src/Css/Declarations.elm
+          var result = path.join(baseDir, dependencyLogicalName + extension);
+
+          return _.includes(knownDependencies, result) ? null : result;
+
         }));
 
         knownFiles.push(file);
@@ -188,25 +194,29 @@ function findAllDependenciesHelp(file, knownDependencies, baseDir, knownFiles) {
         }));
 
         Promise.all(recursePromises).then(function(extraDependencies) {
+          // keep track of files that weren't found in our src directory
+          var externalPackageFiles = [];
+
           var justDeps = extraDependencies.map(function(thing){
-            if (thing.file === null){
+            // if we had an error, we flag the file as a bad thing
+            if (thing.error){
+              externalPackageFiles.push(thing.file)
               return [];
             }
             return thing.knownDependencies;
           });
-          console.log("extraDependencies", justDeps)
-          var flat = _.uniq(_.flatten(knownDependencies.concat(justDeps)));
+
+          var flat = _.uniq(_.flatten(knownDependencies.concat(justDeps))).filter(function(file){
+            return externalPackageFiles.indexOf(file) === -1;
+          });
+
           resolve({
             file: file,
+            error: false,
             knownDependencies: flat
           });
-        }).catch(function(err){
-          console.log("inner err", err);
-        });
-    }).catch(function(err){
-      console.log('err', err);
-      reject(err);
-    });
+        }).catch(reject);
+    }).catch(reject);
   });
 }
 
