@@ -7,11 +7,12 @@ function readImports(file){
     return new Promise(function(resolve, reject){
         // read 60 chars at a time. roughly optimal: memory vs performance
         var stream = fs.createReadStream(file, {encoding: 'utf8', highWaterMark: 8 * 60});
-
         var buffer = "";
         var parser = new Parser();
 
-        stream.on('open', function () {});
+        stream.on('error', function () {
+            resolve(null);
+        });
 
         stream.on('data', function(chunk){
             buffer += chunk;
@@ -39,6 +40,7 @@ function Parser(){
     var moduleRead = false;
     var readingImports = false;
     var parsingDone = false;
+    var isInComment = false;
     var imports = [];
 
     this.parseLine = function(line){
@@ -55,18 +57,21 @@ function Parser(){
             readingImports = true;
         }
 
+        if (isInComment) {
+            if (line.endsWith('-}')){
+                isInComment = false;
+            }
+            return;
+        }
+
         if (readingImports){
             if (line.indexOf('import ') === 0){
                 imports.push(line);
-            } else if (
-                line.indexOf(' ') === 0
-                || line.trim().length === 0
-                || line.startsWith('--')
-                || line.startsWith('{-')
-                || line.startsWith('-}')
-                ) {
+            } else if (line.indexOf(' ') === 0 || line.trim().length === 0 || line.startsWith('--') ) {
                 // ignore lines starting with whitespace while parsing imports
                 // and start and end of comments
+            } else if (line.startsWith('{-')) {
+                isInComment = true;
             } else {
                 // console.log('detected end of imports', line);
                 parsingDone = true;
