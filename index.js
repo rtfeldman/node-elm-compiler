@@ -27,48 +27,84 @@ var defaultOptions     = {
 
 var supportedOptions = _.keys(defaultOptions);
 
+function prepareSources (sources) {
+  console.log('sources', typeof sources)
 
-function compile(sources, options) {
-  if (typeof sources === "string") {
-    sources = [sources];
-  }
-
-  if (!(sources instanceof Array)) {
+  if (!(sources instanceof Array || typeof sources === "string")) {
     throw "compile() received neither an Array nor a String for its sources argument."
   }
 
-  options = _.defaults({}, options, defaultOptions);
+  return typeof sources === "string" ? [sources] : sources
+}
 
+function buildOptions(options, spawnFn) {
+  return _.defaults({}, options, defaultOptions, { spawn: spawnFn })
+}
+
+function prepareProcessArgs(sources, options) {
+  var preparedSources = prepareSources(sources);
+
+  var compilerArgs = compilerArgsFromOptions(options, options.emitWarning);
+  return preparedSources ? preparedSources.concat(compilerArgs) : compilerArgs;
+}
+
+function prepareProcessOpts(options) {
+  var env = _.merge({LANG: 'en_US.UTF-8'}, process.env);
+  return _.merge({ env: env, stdio: "inherit", cwd: options.cwd }, options.processOpts);
+
+}
+
+function runCompiler(sources, options, pathToMake) {
   if (typeof options.spawn !== "function") {
     throw "options.spawn was a(n) " + (typeof options.spawn) + " instead of a function."
   }
 
-  var compilerArgs = compilerArgsFromOptions(options, options.emitWarning);
-  var processArgs  = sources ? sources.concat(compilerArgs) : compilerArgs;
-  var env = _.merge({LANG: 'en_US.UTF-8'}, process.env);
-  var processOpts = _.merge({ env: env, stdio: "inherit", cwd: options.cwd }, options.processOpts);
+  var processArgs = prepareProcessArgs(sources, options);
+  var processOpts = prepareProcessOpts(options);
+
+  if (options.verbose) {
+    console.log(["Running", pathToMake].concat(processArgs || []).join(" "));
+  }
+
+  return options.spawn(pathToMake, processArgs, processOpts)
+}
+
+function handleCompilerError(err, pathToMake) {
+  if ((typeof err === "object") && (typeof err.code === "string")) {
+    handleError(pathToMake, err);
+  } else {
+    console.error("Exception thrown when attempting to run Elm compiler " + JSON.stringify(pathToMake) + ":\n" + err);
+  }
+  throw err
+
+  process.exit(1)
+}
+
+function compileSync(sources, options) {
+  var optionsWithDefaults = buildOptions(options, spawn.sync);
   var pathToMake = options.pathToMake || compilerBinaryName;
-  var verbose = options.verbose;
 
   try {
-    if (verbose) {
-      console.log(["Running", pathToMake].concat(processArgs || []).join(" "));
-    }
+    return runCompiler(sources, optionsWithDefaults, pathToMake)
+  } catch (err) {
+    handleCompilerError(err, pathToMake)
+  }
+}
 
-    return options.spawn(pathToMake, processArgs, processOpts)
+function compile(sources, options) {
+  var optionsWithDefaults = buildOptions(options, spawn);
+  var pathToMake = options.pathToMake || compilerBinaryName;
+
+
+  try {
+    return runCompiler(sources, optionsWithDefaults, pathToMake)
       .on('error', function(err) {
         handleError(pathToMake, err);
 
         process.exit(1)
       });
   } catch (err) {
-    if ((typeof err === "object") && (typeof err.code === "string")) {
-      handleError(pathToMake, err);
-    } else {
-      console.error("Exception thrown when attempting to run Elm compiler " + JSON.stringify(pathToMake) + ":\n" + err);
-    }
-
-    process.exit(1)
+    handleCompilerError(err, pathToMake)
   }
 }
 
@@ -146,76 +182,76 @@ function findAllDependenciesHelp(file, knownDependencies, baseDir, knownFiles) {
     }
     // read the imports then parse each of them
     depsLoader.readImports(file).then(function(lines){
-        // when lines is null, the file was not read so we just return what we know
-        // and flag the error state
-        if (lines === null){
-          return resolve({
-            file: file,
-            error: true,
-            knownDependencies: knownDependencies
-          });
+      // when lines is null, the file was not read so we just return what we know
+      // and flag the error state
+      if (lines === null){
+        return resolve({
+          file: file,
+          error: true,
+          knownDependencies: knownDependencies
+        });
+      }
+
+      var newImports = _.compact(lines.map(function(line) {
+        var matches = line.match(/^import\s+([^\s]+)/);
+
+        // if the line is not actually an import line
+        if (!matches) {
+          return null;
         }
 
-        var newImports = _.compact(lines.map(function(line) {
-          var matches = line.match(/^import\s+([^\s]+)/);
+        // e.g. Css.Declarations
+        var moduleName = matches[1];
 
-          // if the line is not actually an import line
-          if (!matches) {
-            return null;
+        // e.g. Css/Declarations
+        var dependencyLogicalName = moduleName.replace(/\./g, "/");
+
+        // all non-native modules are .elm
+        var extension = ".elm";
+        // all native modules are .js
+        if (moduleName.startsWith("Native.")){
+          extension = ".js";
+        }
+
+        // e.g. ~/code/elm-css/src/Css/Declarations.elm
+        var result = path.join(baseDir, dependencyLogicalName + extension);
+
+        return _.includes(knownDependencies, result) ? null : result;
+
+      }));
+
+      knownFiles.push(file);
+
+      var validDependencies = _.flatten(newImports);
+      var newDependencies = knownDependencies.concat(validDependencies);
+      var recursePromises = _.compact(validDependencies.map(function(dependency) {
+        return path.extname(dependency) === ".elm" ?
+          findAllDependenciesHelp(dependency, newDependencies, baseDir, knownFiles) : null;
+      }));
+
+      Promise.all(recursePromises).then(function(extraDependencies) {
+        // keep track of files that weren't found in our src directory
+        var externalPackageFiles = [];
+
+        var justDeps = extraDependencies.map(function(thing){
+          // if we had an error, we flag the file as a bad thing
+          if (thing.error){
+            externalPackageFiles.push(thing.file)
+            return [];
           }
+          return thing.knownDependencies;
+        });
 
-          // e.g. Css.Declarations
-          var moduleName = matches[1];
+        var flat = _.uniq(_.flatten(knownDependencies.concat(justDeps))).filter(function(file){
+          return externalPackageFiles.indexOf(file) === -1;
+        });
 
-          // e.g. Css/Declarations
-          var dependencyLogicalName = moduleName.replace(/\./g, "/");
-
-          // all non-native modules are .elm
-          var extension = ".elm";
-          // all native modules are .js
-          if (moduleName.startsWith("Native.")){
-            extension = ".js";
-          }
-
-          // e.g. ~/code/elm-css/src/Css/Declarations.elm
-          var result = path.join(baseDir, dependencyLogicalName + extension);
-
-          return _.includes(knownDependencies, result) ? null : result;
-
-        }));
-
-        knownFiles.push(file);
-
-        var validDependencies = _.flatten(newImports);
-        var newDependencies = knownDependencies.concat(validDependencies);
-        var recursePromises = _.compact(validDependencies.map(function(dependency) {
-          return path.extname(dependency) === ".elm" ?
-            findAllDependenciesHelp(dependency, newDependencies, baseDir, knownFiles) : null;
-        }));
-
-        Promise.all(recursePromises).then(function(extraDependencies) {
-          // keep track of files that weren't found in our src directory
-          var externalPackageFiles = [];
-
-          var justDeps = extraDependencies.map(function(thing){
-            // if we had an error, we flag the file as a bad thing
-            if (thing.error){
-              externalPackageFiles.push(thing.file)
-              return [];
-            }
-            return thing.knownDependencies;
-          });
-
-          var flat = _.uniq(_.flatten(knownDependencies.concat(justDeps))).filter(function(file){
-            return externalPackageFiles.indexOf(file) === -1;
-          });
-
-          resolve({
-            file: file,
-            error: false,
-            knownDependencies: flat
-          });
-        }).catch(reject);
+        resolve({
+          file: file,
+          error: false,
+          knownDependencies: flat
+        });
+      }).catch(reject);
     }).catch(reject);
   });
 }
@@ -253,16 +289,16 @@ function compileToString(sources, options){
       });
 
       compiler.on("close", function(exitCode) {
-          if (exitCode !== 0) {
-            return reject(new Error('Compilation failed\n' + output));
-          } else if (options.verbose) {
-            console.log(output);
-          }
+        if (exitCode !== 0) {
+          return reject(new Error('Compilation failed\n' + output));
+        } else if (options.verbose) {
+          console.log(output);
+        }
 
-          fs.readFile(info.path, {encoding: "utf8"}, function(err, data){
-            return err ? reject(err) : resolve(data);
-          });
+        fs.readFile(info.path, {encoding: "utf8"}, function(err, data){
+          return err ? reject(err) : resolve(data);
         });
+      });
     });
   });
 }
