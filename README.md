@@ -2,7 +2,7 @@
 
 Wraps [Elm](https://elm-lang.org) and exposes a [Node](https://nodejs.org) API to compile Elm sources.
 
-Supports Elm version 0.17
+Supports Elm version 0.17, 0.18
 
 # Example
 
