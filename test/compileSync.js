@@ -1,9 +1,6 @@
 var chai = require("chai")
-var spies = require("chai-spies");
 var path = require("path");
 var compiler = require(path.join(__dirname, ".."));
-
-chai.use(spies);
 
 var expect = chai.expect;
 
