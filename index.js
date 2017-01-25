@@ -27,48 +27,82 @@ var defaultOptions     = {
 
 var supportedOptions = _.keys(defaultOptions);
 
-
-function compile(sources, options) {
-  if (typeof sources === "string") {
-    sources = [sources];
+function prepareSources(sources) {
+  if (!(sources instanceof Array || typeof sources === "string")) {
+    throw "compile() received neither an Array nor a String for its sources argument.";
   }
 
-  if (!(sources instanceof Array)) {
-    throw "compile() received neither an Array nor a String for its sources argument."
-  }
+  return typeof sources === "string" ? [sources] : sources;
+}
 
-  options = _.defaults({}, options, defaultOptions);
+function prepareOptions(options, spawnFn) {
+  return _.defaults({ spawn: spawnFn }, options, defaultOptions);
+}
 
-  if (typeof options.spawn !== "function") {
-    throw "options.spawn was a(n) " + (typeof options.spawn) + " instead of a function."
-  }
+function prepareProcessArgs(sources, options) {
+  var preparedSources = prepareSources(sources);
 
   var compilerArgs = compilerArgsFromOptions(options, options.emitWarning);
-  var processArgs  = sources ? sources.concat(compilerArgs) : compilerArgs;
+  return preparedSources ? preparedSources.concat(compilerArgs) : compilerArgs;
+}
+
+function prepareProcessOpts(options) {
   var env = _.merge({LANG: 'en_US.UTF-8'}, process.env);
-  var processOpts = _.merge({ env: env, stdio: "inherit", cwd: options.cwd }, options.processOpts);
+  return _.merge({ env: env, stdio: "inherit", cwd: options.cwd }, options.processOpts);
+
+}
+
+function runCompiler(sources, options, pathToMake) {
+  if (typeof options.spawn !== "function") {
+    throw "options.spawn was a(n) " + (typeof options.spawn) + " instead of a function.";
+  }
+
+  var processArgs = prepareProcessArgs(sources, options);
+  var processOpts = prepareProcessOpts(options);
+
+  if (options.verbose) {
+    console.log(["Running", pathToMake].concat(processArgs || []).join(" "));
+  }
+
+  return options.spawn(pathToMake, processArgs, processOpts);
+}
+
+function handleCompilerError(err, pathToMake) {
+  if ((typeof err === "object") && (typeof err.code === "string")) {
+    handleError(pathToMake, err);
+  } else {
+    console.error("Exception thrown when attempting to run Elm compiler " + JSON.stringify(pathToMake) + ":\n" + err);
+  }
+  throw err;
+
+  process.exit(1);
+}
+
+function compileSync(sources, options) {
+  var optionsWithDefaults = prepareOptions(options, spawn.sync);
   var pathToMake = options.pathToMake || compilerBinaryName;
-  var verbose = options.verbose;
 
   try {
-    if (verbose) {
-      console.log(["Running", pathToMake].concat(processArgs || []).join(" "));
-    }
+    return runCompiler(sources, optionsWithDefaults, pathToMake);
+  } catch (err) {
+    handleCompilerError(err, pathToMake);
+  }
+}
 
-    return options.spawn(pathToMake, processArgs, processOpts)
+function compile(sources, options) {
+  var optionsWithDefaults = prepareOptions(options, spawn);
+  var pathToMake = options.pathToMake || compilerBinaryName;
+
+
+  try {
+    return runCompiler(sources, optionsWithDefaults, pathToMake)
       .on('error', function(err) {
         handleError(pathToMake, err);
 
-        process.exit(1)
+        process.exit(1);
       });
   } catch (err) {
-    if ((typeof err === "object") && (typeof err.code === "string")) {
-      handleError(pathToMake, err);
-    } else {
-      console.error("Exception thrown when attempting to run Elm compiler " + JSON.stringify(pathToMake) + ":\n" + err);
-    }
-
-    process.exit(1)
+    handleCompilerError(err, pathToMake);
   }
 }
 
@@ -308,6 +342,7 @@ function compilerArgsFromOptions(options, emitWarning) {
 
 module.exports = {
   compile: compile,
+  compileSync: compileSync,
   compileWorker: require("./worker.js")(compile),
   compileToString: compileToString,
   findAllDependencies: findAllDependencies

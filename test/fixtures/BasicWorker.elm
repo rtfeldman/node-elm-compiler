@@ -1,14 +1,13 @@
 port module BasicWorker exposing (..)
 
-import Html.App
 import Html
+import Platform
 
 
-main : Program Never
+main : Program Never String msg
 main =
-    Html.App.program
+    Platform.program
         { init = ( "", report "it's alive!" )
-        , view = \_ -> Html.text ""
         , update = \_ _ -> ( "", Cmd.none )
         , subscriptions = (\_ -> Sub.none)
         }
