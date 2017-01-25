@@ -14,6 +14,10 @@ $ node compileHelloWorld.js
 
 # Releases
 
+## 4.3.0
+
+Add `compileSync` via @yormi
+
 ## 4.2.1
 
 Epic perf improvements from @eeue56
