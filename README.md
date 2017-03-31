@@ -14,6 +14,10 @@ $ node compileHelloWorld.js
 
 # Releases
 
+## 4.3.1
+
+Upgrade `findAllDependencies` dependency to correctly report all dependencies within a multi-source-directory project.
+
 ## 4.3.0
 
 Add `compileSync` via @yormi
