@@ -161,10 +161,6 @@ function handleError(pathToMake, err) {
   }
 }
 
-function escapePath(pathStr) {
-  return pathStr.replace(/ /g, "\\ ");
-}
-
 // Converts an object of key/value pairs to an array of arguments suitable
 // to be passed to child_process.spawn for elm-make.
 function compilerArgsFromOptions(options, emitWarning) {
@@ -173,7 +169,7 @@ function compilerArgsFromOptions(options, emitWarning) {
       switch(opt) {
         case "yes":    return ["--yes"];
         case "help":   return ["--help"];
-        case "output": return ["--output", escapePath(value)];
+        case "output": return ["--output", value];
         case "report": return ["--report", value];
         case "warn":   return ["--warn"];
         case "debug":  return ["--debug"];
