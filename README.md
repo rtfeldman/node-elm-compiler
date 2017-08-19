@@ -6,10 +6,24 @@ Supports Elm version 0.17, 0.18
 
 # Example
 
-```bash
-$ npm install
-$ cd examples
-$ node compileHelloWorld.js
+```javascript
+var compile = require("elm-node-compiler").compile;
+var compileToString = require("elm-node-compiler").compileToString;
+
+compile(["./HelloWorld.elm"], {
+  output: "compiled-hello-world.js"
+}).on('close', function(exitCode) {
+  console.log("Finished with exit code", exitCode);
+});
+
+
+compileToString(["./HelloWorld.elm"], { yes: true }).then(function(data){
+    console.log("Text", data.toString());
+});
+
+compileToString(["./HelloWorld.elm"], { yes: true, output: "index.html" }).then(function(data){
+    console.log("Text", data.toString());
+});
 ```
 
 # Releases
