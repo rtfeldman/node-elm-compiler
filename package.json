@@ -26,7 +26,7 @@
   "homepage": "https://github.com/rtfeldman/node-elm-compiler",
   "dependencies": {
     "cross-spawn": "4.0.0",
-    "find-elm-dependencies": "1.0.1",
+    "find-elm-dependencies": "1.0.2",
     "lodash": "4.14.2",
     "temp": "^0.8.3"
   },
