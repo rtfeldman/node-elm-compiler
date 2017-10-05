@@ -77,7 +77,7 @@ function handleCompilerError(err, pathToMake) {
 }
 
 function compileSync(sources, options) {
-  var optionsWithDefaults = prepareOptions(options, spawn.sync);
+  var optionsWithDefaults = prepareOptions(options, options.spawn || spawn.sync);
   var pathToMake = options.pathToMake || compilerBinaryName;
 
   try {
@@ -88,7 +88,7 @@ function compileSync(sources, options) {
 }
 
 function compile(sources, options) {
-  var optionsWithDefaults = prepareOptions(options, spawn);
+  var optionsWithDefaults = prepareOptions(options, options.spawn || spawn);
   var pathToMake = options.pathToMake || compilerBinaryName;
 
 
