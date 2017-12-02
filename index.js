@@ -151,6 +151,18 @@ function compileToString(sources, options){
   });
 }
 
+function compileToStringSync(sources, options) {
+  if (typeof options.output === "undefined"){
+    options.output = '.js';
+  }
+
+  const file = temp.openSync({ suffix: options.output });
+  options.output = file.path;
+  compileSync(sources, options);
+
+  return fs.readFileSync(file.path, {encoding: "utf8"});
+}
+
 function handleError(pathToMake, err) {
   if (err.code === "ENOENT") {
     console.error("Could not find Elm compiler \"" + pathToMake + "\". Is it installed?")
@@ -191,5 +203,6 @@ module.exports = {
   compileSync: compileSync,
   compileWorker: require("./worker.js")(compile),
   compileToString: compileToString,
+  compileToStringSync: compileToStringSync,
   findAllDependencies: findAllDependencies
 };
