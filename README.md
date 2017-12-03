@@ -16,7 +16,7 @@ $ node compileHelloWorld.js
 
 ## 4.4.0
 
-Add `compileSync`
+Add `compileToStringSync`
 
 ## 4.3.1
 
