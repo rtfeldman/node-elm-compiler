@@ -1,6 +1,14 @@
 var compile = require("../index.js").compile;
 var compileToString = require("../index.js").compileToString;
 
+var findElmBinaries = require("../index.js").findElmBinaries;
+
+findElmBinaries().then(function(foundPath){
+    console.log(foundPath);
+}).catch(function(err){
+    console.log(err);
+});
+
 compile(["./HelloWorld.elm"], {
   output: "compiled-hello-world.js"
 }).on('close', function(exitCode) {
