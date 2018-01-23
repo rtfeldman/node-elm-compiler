@@ -7,6 +7,7 @@ var fs = require("fs");
 var path = require("path");
 var temp = require("temp").track();
 var findAllDependencies = require("find-elm-dependencies").findAllDependencies;
+var which = require("which");
 
 var defaultOptions     = {
   emitWarning: console.warn,
@@ -200,11 +201,30 @@ function compilerArgsFromOptions(options, emitWarning) {
   }));
 }
 
+// Tries to locate where the Elm binaries are. First looks at node_modules, then globally
+//
+function findElmBinaries() {
+  let localElmBin = path.resolve(path.join("node_modules", ".bin", "elm-make"));
+
+  return new Promise(function(resolve, reject) {
+    fs.access(localElmBin, function(err) {
+      if (!err) return resolve(localElmBin);
+
+      which('elm-make', function(err, path) {
+        if (err) return reject("Unable to find Elm anywhere!");
+
+        return resolve(path);
+      });
+    })
+  });
+}
+
 module.exports = {
   compile: compile,
   compileSync: compileSync,
   compileWorker: require("./worker.js")(compile),
   compileToString: compileToString,
   compileToStringSync: compileToStringSync,
-  findAllDependencies: findAllDependencies
+  findAllDependencies: findAllDependencies,
+  findElmBinaries: findElmBinaries
 };
