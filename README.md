@@ -14,6 +14,10 @@ $ node compileHelloWorld.js
 
 # Releases
 
+## 4.5.0
+
+Add `runtimeOptions`
+
 ## 4.4.0
 
 Add `compileToStringSync`
