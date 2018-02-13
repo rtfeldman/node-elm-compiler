@@ -82,6 +82,19 @@ describe("#compileToString", function() {
     });
   });
 
+  it("adds runtime options as arguments", function () {
+    var opts = {
+      yes: true,
+      verbose: true,
+      cwd: fixturesDir,
+      runtimeOptions: "-A128M -H128M -n8m"
+    };
+
+    return expect(compiler
+        ._prepareProcessArgs("a.elm", opts)
+        .join(" ")).to.equal("a.elm --yes +RTS -A128M -H128M -n8m -RTS");
+  });
+
   it("reports errors on bad syntax", function () {
     var opts = {
       yes: true,
