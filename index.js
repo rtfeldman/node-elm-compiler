@@ -9,7 +9,6 @@ var temp = require("temp").track();
 var findAllDependencies = require("find-elm-dependencies").findAllDependencies;
 
 var defaultOptions     = {
-  emitWarning: console.warn,
   spawn:      spawn,
   cwd:        undefined,
   pathToElm:  undefined,
@@ -39,7 +38,7 @@ function prepareOptions(options, spawnFn) {
 
 function prepareProcessArgs(sources, options) {
   var preparedSources = prepareSources(sources);
-  var compilerArgs = compilerArgsFromOptions(options, options.emitWarning);
+  var compilerArgs = compilerArgsFromOptions(options);
 
   return ["make"].concat(preparedSources ? preparedSources.concat(compilerArgs) : compilerArgs);
 }
@@ -65,15 +64,21 @@ function runCompiler(sources, options, pathToElm) {
   return options.spawn(pathToElm, processArgs, processOpts);
 }
 
-function handleCompilerError(err, pathToElm) {
+function compilerErrorToString(err, pathToElm) {
   if ((typeof err === "object") && (typeof err.code === "string")) {
-    handleError(pathToElm, err);
-  } else {
-    console.error("Exception thrown when attempting to run Elm compiler " + JSON.stringify(pathToElm) + ":\n" + err);
-  }
-  throw err;
+    switch (err.code) {
+      case "ENOENT":
+        return ("Could not find Elm compiler \"" + pathToElm + "\". Is it installed?")
 
-  process.exit(1);
+      case "EACCES":
+        return ("Elm compiler \"" + pathToElm + "\" did not have permission to run. Do you need to give it executable permissions?");
+
+      default:
+        return ("Error attempting to run Elm compiler \"" + pathToElm + "\":\n" + err);
+    }
+  } else {
+    return ("Exception thrown when attempting to run Elm compiler " + JSON.stringify(pathToElm) + ":\n" + err);
+  }
 }
 
 function compileSync(sources, options) {
@@ -83,7 +88,7 @@ function compileSync(sources, options) {
   try {
     return runCompiler(sources, optionsWithDefaults, pathToElm);
   } catch (err) {
-    handleCompilerError(err, pathToElm);
+    throw compilerErrorToString(err, pathToElm);
   }
 }
 
@@ -94,13 +99,9 @@ function compile(sources, options) {
 
   try {
     return runCompiler(sources, optionsWithDefaults, pathToElm)
-      .on('error', function(err) {
-        handleError(pathToElm, err);
-
-        process.exit(1);
-      });
+      .on('error', function(err) { throw(err); });
   } catch (err) {
-    handleCompilerError(err, pathToElm);
+    throw compilerErrorToString(err, pathToElm);
   }
 }
 
@@ -123,7 +124,13 @@ function compileToString(sources, options){
       options.output = info.path;
       options.processOpts = { stdio: 'pipe' }
 
-      var compiler = compile(sources, options);
+      var compiler;
+
+      try {
+        compiler = compile(sources, options);
+      } catch(compileError) {
+        return reject(compileError);
+      }
 
       compiler.stdout.setEncoding("utf8");
       compiler.stderr.setEncoding("utf8");
@@ -163,19 +170,9 @@ function compileToStringSync(sources, options) {
   return fs.readFileSync(file.path, {encoding: "utf8"});
 }
 
-function handleError(pathToElm, err) {
-  if (err.code === "ENOENT") {
-    console.error("Could not find Elm compiler \"" + pathToElm + "\". Is it installed?")
-  } else if (err.code === "EACCES") {
-    console.error("Elm compiler \"" + pathToElm + "\" did not have permission to run. Do you need to give it executable permissions?");
-  } else {
-    console.error("Error attempting to run Elm compiler \"" + pathToElm + "\":\n" + err);
-  }
-}
-
 // Converts an object of key/value pairs to an array of arguments suitable
 // to be passed to child_process.spawn for elm-make.
-function compilerArgsFromOptions(options, emitWarning) {
+function compilerArgsFromOptions(options) {
   return _.flatten(_.map(options, function(value, opt) {
     if (value) {
       switch(opt) {

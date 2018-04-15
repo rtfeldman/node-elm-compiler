@@ -26,17 +26,16 @@ describe("#compileSync", function() {
     expect(exitCode, desc).to.equal(1);
   });
 
-  it("invokes custom `emitWarning`", function () {
+  it("throws when given an unrecognized argument like `yes`", function () {
     var opts = {
-      foo: "bar",
-      emitWarning: chai.spy(),
+      yes: true,
       output: "/dev/null",
       verbose: true,
       cwd: fixturesDir
     };
-    var compileProcess = compiler.compileSync(prependFixturesDir("Parent.elm"), opts);
 
-    var desc = "Expected emitWarning to have been called";
-    expect(opts.emitWarning, desc).to.have.been.called();
+    expect(function() {
+      var compileProcess = compiler.compileSync(prependFixturesDir("Parent.elm"), opts);
+    }).to.throw();
   });
 });
