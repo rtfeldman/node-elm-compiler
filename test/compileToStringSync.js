@@ -16,8 +16,7 @@ describe("#compileToStringSync", function() {
     var opts = {verbose: true, cwd: fixturesDir};
     var result = compiler.compileToStringSync(prependFixturesDir("Parent.elm"), opts);
 
-    expect(result).to.include("globalElm[publicModule] = Elm[publicModule];");
-    expect(result).to.include("Elm['Parent'] = Elm['Parent'] || {}");
+    expect(result).to.include("_Platform_export");
   });
 
   it('returns html output given "html" output option', function() {
@@ -26,7 +25,6 @@ describe("#compileToStringSync", function() {
 
     expect(result).to.include('<!DOCTYPE HTML>');
     expect(result).to.include('<title>Parent</title>');
-    expect(result).to.include("globalElm[publicModule] = Elm[publicModule];");
-    expect(result).to.include("Elm['Parent'] = Elm['Parent'] || {}");
+    expect(result).to.include("_Platform_export");
   });
 });
