@@ -14,6 +14,10 @@ $ node compileHelloWorld.js
 
 # Releases
 
+## 5.0.0
+
+Add 0.19 support. Remove `yes` option. Throw exceptions instead of emitting warnings or using process.exit.
+
 ## 4.5.0
 
 Add `runtimeOptions`
