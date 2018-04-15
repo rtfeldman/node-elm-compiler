@@ -42,7 +42,7 @@ module.exports = function(compile) {
       .then(function (tmpDirPath) {
         var dest = path.join(tmpDirPath, jsEmitterFilename);
 
-        return compileEmitter(compile, modulePath, {output: dest, yes: true})
+        return compileEmitter(compile, modulePath, {output: dest})
           .then(function() { return runWorker(dest, moduleName, workerArgs) });
       })
       .then(function(worker) {

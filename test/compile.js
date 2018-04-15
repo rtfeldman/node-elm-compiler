@@ -20,19 +20,8 @@ describe("#compile", function() {
   // Use a timeout of 5 minutes because Travis on Linux can be SUPER slow.
   this.timeout(300000);
 
-  it("works with --yes", function (done) {
-    var opts = {yes: true, output: "/dev/null", verbose: true, cwd: fixturesDir};
-    var compileProcess = compiler.compile(prependFixturesDir("Parent.elm"), opts);
-
-    compileProcess.on("exit", function(exitCode) {
-      expect(exitCode, "Expected elm-make to have exit code 0").to.equal(0);
-      done();
-    });
-  });
-
   it("reports errors on bad source", function (done) {
     var opts = {
-      yes: true,
       verbose: true,
       cwd: fixturesDir
     };
@@ -49,7 +38,6 @@ describe("#compile", function() {
     var opts = {
       foo: "bar",
       emitWarning: chai.spy(),
-      yes: true,
       output: "/dev/null",
       verbose: true,
       cwd: fixturesDir
@@ -68,23 +56,8 @@ describe("#compileToString", function() {
   // Use an epic timeout because Travis on Linux can be SUPER slow.
   this.timeout(600000);
 
-  it("works with --yes", function () {
-    var opts = {
-      yes: true,
-      verbose: true,
-      cwd: fixturesDir
-    };
-    var compilePromise = compiler.compileToString(prependFixturesDir("Parent.elm"), opts);
-
-    return compilePromise.then(function(result) {
-      var desc = "Expected elm-make to return the result of the compilation";
-      expect(result.toString(), desc).to.be.a('string');
-    });
-  });
-
   it("adds runtime options as arguments", function () {
     var opts = {
-      yes: true,
       verbose: true,
       cwd: fixturesDir,
       runtimeOptions: "-A128M -H128M -n8m"
@@ -92,12 +65,11 @@ describe("#compileToString", function() {
 
     return expect(compiler
         ._prepareProcessArgs("a.elm", opts)
-        .join(" ")).to.equal("a.elm --yes +RTS -A128M -H128M -n8m -RTS");
+        .join(" ")).to.equal("a.elm +RTS -A128M -H128M -n8m -RTS");
   });
 
   it("reports errors on bad syntax", function () {
     var opts = {
-      yes: true,
       verbose: true,
       cwd: fixturesDir
     };
@@ -113,7 +85,6 @@ describe("#compileToString", function() {
 
   it("reports type errors", function () {
     var opts = {
-      yes: true,
       verbose: true,
       cwd: fixturesDir
     };
@@ -131,7 +102,6 @@ describe("#compileToString", function() {
     var opts = {
       foo: "bar",
       emitWarning: chai.spy(),
-      yes: true,
       verbose: true,
       cwd: fixturesDir
     };
@@ -146,7 +116,6 @@ describe("#compileToString", function() {
 
   it("works when run multiple times", function () {
     var opts = {
-      yes: true,
       verbose: true,
       cwd: fixturesDir
     };
@@ -176,7 +145,6 @@ describe("#compileWorker", function() {
 
   it("works with BasicWorker.elm", function() {
     var opts = {
-      yes: true,
       verbose: true,
       cwd: fixturesDir
     };
