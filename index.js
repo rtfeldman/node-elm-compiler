@@ -188,7 +188,7 @@ function compilerArgsFromOptions(options, emitWarning) {
         case "runtimeOptions":   return ["+RTS", value, "-RTS"]
         default:
           if (supportedOptions.indexOf(opt) === -1) {
-            emitWarning('Unknown Elm compiler option: ' + opt);
+            throw new Error('node-elm-compiler was given an unrecognized Elm compiler option: ' + opt);
           }
 
           return [];
