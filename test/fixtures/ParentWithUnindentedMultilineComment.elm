@@ -9,7 +9,6 @@ import Test.ChildA
 import Test.ChildB exposing (..)
 {- this comment will end before an import
 -}
-import Native.Child exposing (..)
 import Html
 
 

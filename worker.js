@@ -5,7 +5,6 @@ var jsEmitterFilename = "emitter.js";
 
 var KNOWN_MODULES =
   [
-    "Native",
     "fullscreen",
     "embed",
     "worker",
