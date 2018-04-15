@@ -39,7 +39,7 @@ describe("#compile", function() {
     var compileProcess = compiler.compile(prependFixturesDir("Bad.elm"), opts);
 
     compileProcess.on("exit", function(exitCode) {
-      var desc = "Expected elm-make to have exit code 1";
+      var desc = "Expected elm make to have exit code 1";
       expect(exitCode, desc).to.equal(1);
       done();
     });
@@ -158,7 +158,7 @@ describe("#compileToString", function() {
       var compilePromise = compiler.compileToString(prependFixturesDir("Parent.elm"), opts)
 
       return compilePromise.then(function(result) {
-        var desc = "Expected elm-make to return the result of the compilation";
+        var desc = "Expected elm make to return the result of the compilation";
         expect(result.toString(), desc).to.be.a('string');
       });
     };
