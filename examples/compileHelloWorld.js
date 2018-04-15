@@ -9,9 +9,9 @@ compile(["./HelloWorld.elm"], {
 
 
 compileToString(["./HelloWorld.elm"], {}).then(function(data){
-    console.log("Text", data.toString());
+    console.log("compileToString produced a string with this length:", data.toString().length);
 });
 
 compileToString(["./HelloWorld.elm"], { output: "index.html" }).then(function(data){
-    console.log("Text", data.toString());
+    console.log("compileToString --output index.html produced a string with this length:", data.toString().length);
 });
