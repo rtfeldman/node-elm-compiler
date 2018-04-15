@@ -62,7 +62,7 @@ describe("#compileToString", function() {
 
     return expect(compiler
         ._prepareProcessArgs("a.elm", opts)
-        .join(" ")).to.equal("a.elm +RTS -A128M -H128M -n8m -RTS");
+        .join(" ")).to.equal("make a.elm +RTS -A128M -H128M -n8m -RTS");
   });
 
   it("reports errors on bad syntax", function () {
