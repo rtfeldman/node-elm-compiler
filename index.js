@@ -2,7 +2,7 @@
 
 var spawn = require("cross-spawn");
 var _ = require("lodash");
-var compilerBinaryName = "elm-make";
+var elmBinaryName = "elm";
 var fs = require("fs");
 var path = require("path");
 var temp = require("temp").track();
@@ -12,8 +12,7 @@ var defaultOptions     = {
   emitWarning: console.warn,
   spawn:      spawn,
   cwd:        undefined,
-  pathToMake: undefined,
-  yes:        undefined,
+  pathToElm:  undefined,
   help:       undefined,
   output:     undefined,
   report:     undefined,
@@ -40,9 +39,9 @@ function prepareOptions(options, spawnFn) {
 
 function prepareProcessArgs(sources, options) {
   var preparedSources = prepareSources(sources);
-
   var compilerArgs = compilerArgsFromOptions(options, options.emitWarning);
-  return preparedSources ? preparedSources.concat(compilerArgs) : compilerArgs;
+
+  return ["make"].concat(preparedSources ? preparedSources.concat(compilerArgs) : compilerArgs);
 }
 
 function prepareProcessOpts(options) {
@@ -51,7 +50,7 @@ function prepareProcessOpts(options) {
 
 }
 
-function runCompiler(sources, options, pathToMake) {
+function runCompiler(sources, options, pathToElm) {
   if (typeof options.spawn !== "function") {
     throw "options.spawn was a(n) " + (typeof options.spawn) + " instead of a function.";
   }
@@ -60,17 +59,17 @@ function runCompiler(sources, options, pathToMake) {
   var processOpts = prepareProcessOpts(options);
 
   if (options.verbose) {
-    console.log(["Running", pathToMake].concat(processArgs || []).join(" "));
+    console.log(["Running", pathToElm].concat(processArgs).join(" "));
   }
 
-  return options.spawn(pathToMake, processArgs, processOpts);
+  return options.spawn(pathToElm, processArgs, processOpts);
 }
 
-function handleCompilerError(err, pathToMake) {
+function handleCompilerError(err, pathToElm) {
   if ((typeof err === "object") && (typeof err.code === "string")) {
-    handleError(pathToMake, err);
+    handleError(pathToElm, err);
   } else {
-    console.error("Exception thrown when attempting to run Elm compiler " + JSON.stringify(pathToMake) + ":\n");
+    console.error("Exception thrown when attempting to run Elm compiler " + JSON.stringify(pathToElm) + ":\n");
   }
   throw err;
 
@@ -79,29 +78,29 @@ function handleCompilerError(err, pathToMake) {
 
 function compileSync(sources, options) {
   var optionsWithDefaults = prepareOptions(options, options.spawn || spawn.sync);
-  var pathToMake = options.pathToMake || compilerBinaryName;
+  var pathToElm = options.pathToElm || elmBinaryName;
 
   try {
-    return runCompiler(sources, optionsWithDefaults, pathToMake);
+    return runCompiler(sources, optionsWithDefaults, pathToElm);
   } catch (err) {
-    handleCompilerError(err, pathToMake);
+    handleCompilerError(err, pathToElm);
   }
 }
 
 function compile(sources, options) {
   var optionsWithDefaults = prepareOptions(options, options.spawn || spawn);
-  var pathToMake = options.pathToMake || compilerBinaryName;
+  var pathToElm = options.pathToElm || elmBinaryName;
 
 
   try {
-    return runCompiler(sources, optionsWithDefaults, pathToMake)
+    return runCompiler(sources, optionsWithDefaults, pathToElm)
       .on('error', function(err) {
-        handleError(pathToMake, err);
+        handleError(pathToElm, err);
 
         process.exit(1);
       });
   } catch (err) {
-    handleCompilerError(err, pathToMake);
+    handleCompilerError(err, pathToElm);
   }
 }
 
@@ -164,13 +163,13 @@ function compileToStringSync(sources, options) {
   return fs.readFileSync(file.path, {encoding: "utf8"});
 }
 
-function handleError(pathToMake, err) {
+function handleError(pathToElm, err) {
   if (err.code === "ENOENT") {
-    console.error("Could not find Elm compiler \"" + pathToMake + "\". Is it installed?")
+    console.error("Could not find Elm compiler \"" + pathToElm + "\". Is it installed?")
   } else if (err.code === "EACCES") {
-    console.error("Elm compiler \"" + pathToMake + "\" did not have permission to run. Do you need to give it executable permissions?");
+    console.error("Elm compiler \"" + pathToElm + "\" did not have permission to run. Do you need to give it executable permissions?");
   } else {
-    console.error("Error attempting to run Elm compiler \"" + pathToMake + "\":\n" + err);
+    console.error("Error attempting to run Elm compiler \"" + pathToElm + "\":\n" + err);
   }
 }
 

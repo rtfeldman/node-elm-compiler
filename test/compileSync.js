@@ -30,7 +30,7 @@ describe("#compileSync", function() {
     var compileProcess = compiler.compileSync(prependFixturesDir("Bad.elm"), opts);
 
     var exitCode = compileProcess.status;
-    var desc = "Expected elm-make to have exit code 1";
+    var desc = "Expected elm make to have exit code 1";
     expect(exitCode, desc).to.equal(1);
   });
 
