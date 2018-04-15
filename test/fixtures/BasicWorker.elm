@@ -1,16 +1,15 @@
 port module BasicWorker exposing (..)
 
-import Html
 import Platform
 
 
-main : Program Never String msg
+main : Program () String msg
 main =
-    Platform.program
-        { init = ( "", report "it's alive!" )
+    Platform.worker
+        { init = \_ -> ( "", reportFromWorker "it's alive!" )
         , update = \_ _ -> ( "", Cmd.none )
-        , subscriptions = (\_ -> Sub.none)
+        , subscriptions = \_ -> Sub.none
         }
 
 
-port report : String -> Cmd a
+port reportFromWorker : String -> Cmd a
