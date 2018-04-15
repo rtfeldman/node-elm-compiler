@@ -1,5 +1,4 @@
 var chai = require("chai");
-// var spies = require("chia-spies");
 var path = require("path");
 var compiler = require(path.join(__dirname, ".."));
 

@@ -1,12 +1,9 @@
 var chai = require("chai")
-var spies = require("chai-spies");
 var path = require("path");
 var compiler = require(path.join(__dirname, ".."));
 var childProcess = require("child_process");
 var _ = require("lodash");
 var temp = require("temp");
-
-chai.use(spies);
 
 var expect = chai.expect;
 
