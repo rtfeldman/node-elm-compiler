@@ -34,21 +34,18 @@ describe("#compile", function() {
     });
   });
 
-  it("invokes custom `emitWarning`", function (done) {
+  it("throws when given an unrecognized argument", function () {
     var opts = {
       foo: "bar",
-      emitWarning: chai.spy(),
       output: "/dev/null",
       verbose: true,
       cwd: fixturesDir
     };
-    var compileProcess = compiler.compile(prependFixturesDir("Parent.elm"), opts);
 
-    compileProcess.on("exit", function(exitCode) {
-      var desc = "Expected emitWarning to have been called";
-      expect(opts.emitWarning, desc).to.have.been.called();
-      done();
-    });
+    expect(function() {
+      var compileProcess = compiler.compile(prependFixturesDir("Parent.elm"), opts);
+
+    }).to.throw();
   });
 });
 
@@ -98,18 +95,21 @@ describe("#compileToString", function() {
     });
   });
 
-  it("invokes custom `emitWarning`", function () {
+  it("Rejects the Promise when given an unrecognized argument like `yes`", function () {
     var opts = {
       foo: "bar",
-      emitWarning: chai.spy(),
       verbose: true,
       cwd: fixturesDir
     };
+
     var compilePromise = compiler.compileToString(prependFixturesDir("Parent.elm"), opts);
 
-    return compilePromise.then(function(err) {
-      var desc = "Expected emitWarning to have been called";
-      expect(opts.emitWarning, desc).to.have.been.called();
+    return new Promise(function(resolve, reject) {
+      return compilePromise.then(function() {
+        reject("Expected the compilation promise to be rejected due to the unrecognized compiler argument.");
+      }).catch(function() {
+        resolve();
+      });
     });
   });
 
