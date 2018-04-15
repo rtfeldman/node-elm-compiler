@@ -179,7 +179,6 @@ function compilerArgsFromOptions(options, emitWarning) {
   return _.flatten(_.map(options, function(value, opt) {
     if (value) {
       switch(opt) {
-        case "yes":    return ["--yes"];
         case "help":   return ["--help"];
         case "output": return ["--output", value];
         case "report": return ["--report", value];

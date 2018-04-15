@@ -13,7 +13,7 @@ function prependFixturesDir(filename) {
 
 describe("#compileToStringSync", function() {
   it('returns string JS output of the given elm file', function() {
-    var opts = {yes: true, verbose: true, cwd: fixturesDir};
+    var opts = {verbose: true, cwd: fixturesDir};
     var result = compiler.compileToStringSync(prependFixturesDir("Parent.elm"), opts);
 
     expect(result).to.include("globalElm[publicModule] = Elm[publicModule];");
@@ -21,7 +21,7 @@ describe("#compileToStringSync", function() {
   });
 
   it('returns html output given "html" output option', function() {
-    var opts = {yes: true, verbose: true, cwd: fixturesDir, output: '.html'};
+    var opts = {verbose: true, cwd: fixturesDir, output: '.html'};
     var result = compiler.compileToStringSync(prependFixturesDir("Parent.elm"), opts);
 
     expect(result).to.include('<!DOCTYPE HTML>');
