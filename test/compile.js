@@ -152,7 +152,7 @@ describe("#compileWorker", function() {
     );
 
     return compilePromise.then(function(app) {
-      app.ports.report.subscribe(function(str) {
+      app.ports.reportFromWorker.subscribe(function(str) {
         expect(str).to.equal("it's alive!");
       });
     })
