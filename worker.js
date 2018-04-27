@@ -99,7 +99,7 @@ function noPortsMessage(moduleName){
 
 function runWorker(jsFilename, moduleName, workerArgs) {
   return new Promise(function (resolve, reject) {
-    var Elm = require(jsFilename);
+    var Elm = require(jsFilename).Elm;
 
     if (!(moduleName in Elm)){
       return reject(missingEntryModuleMessage(moduleName, Elm));
