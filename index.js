@@ -70,7 +70,7 @@ function handleCompilerError(err, pathToMake) {
   if ((typeof err === "object") && (typeof err.code === "string")) {
     handleError(pathToMake, err);
   } else {
-    console.error("Exception thrown when attempting to run Elm compiler " + JSON.stringify(pathToMake) + ":\n" + err);
+    console.error("Exception thrown when attempting to run Elm compiler " + JSON.stringify(pathToMake) + ":\n");
   }
   throw err;
 
