@@ -187,7 +187,7 @@ function compilerArgsFromOptions(options, emitWarning) {
         case "warn":   return ["--warn"];
         case "debug":  return ["--debug"];
         case "docs":   return ["--docs", value]
-        case "runtimeOptions":   return ["+RTS", value, "-RTS"]
+        case "runtimeOptions":   return [].concat(["+RTS"], value ,["-RTS"])
         default:
           if (supportedOptions.indexOf(opt) === -1) {
             emitWarning('Unknown Elm compiler option: ' + opt);
