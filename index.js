@@ -15,11 +15,11 @@ var defaultOptions     = {
   help:       undefined,
   output:     undefined,
   report:     undefined,
-  warn:       undefined,
   debug:      undefined,
   verbose:    false,
   processOpts: undefined,
   docs:       undefined,
+  optimize:   undefined,
 };
 
 var supportedOptions = _.keys(defaultOptions);
@@ -179,9 +179,9 @@ function compilerArgsFromOptions(options) {
         case "help":   return ["--help"];
         case "output": return ["--output", value];
         case "report": return ["--report", value];
-        case "warn":   return ["--warn"];
         case "debug":  return ["--debug"];
         case "docs":   return ["--docs", value]
+        case "optimize":   return ["--optimize"];
         case "runtimeOptions":   return ["+RTS", value, "-RTS"]
         default:
           if (supportedOptions.indexOf(opt) === -1) {
