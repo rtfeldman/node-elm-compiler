@@ -16,7 +16,7 @@ $ node compileHelloWorld.js
 
 ## 5.0.0
 
-Add 0.19 support. Remove `yes` option. Throw exceptions instead of emitting warnings or using process.exit.
+Add 0.19 support. Remove `yes` option. Add `optimize` option. Throw exceptions instead of emitting warnings or using process.exit.
 
 ## 4.5.0
 
