@@ -1,4 +1,3 @@
-var fs = require("fs");
 var temp = require("temp").track();
 var path = require("path");
 var jsEmitterFilename = "emitter.js";
@@ -53,7 +52,7 @@ module.exports = function(compile) {
         throw Error(err);
       });
   };
-}
+};
 
 function createTmpDir() {
   return new Promise(function (resolve, reject) {
