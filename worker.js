@@ -104,7 +104,7 @@ function runWorker(jsFilename, moduleName, workerArgs) {
       return reject(missingEntryModuleMessage(moduleName, Elm));
     }
 
-    var worker = Elm[moduleName].worker(workerArgs);
+    var worker = Elm[moduleName].init(workerArgs);
 
     if (Object.keys(worker.ports).length === 0){
       return reject(noPortsMessage(moduleName, portName));
