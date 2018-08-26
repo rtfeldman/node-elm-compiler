@@ -19,6 +19,7 @@ install:
   - node --version
   - npm --version
   - npm install -g elm@$ELM_VERSION
+  - npm install
 
 script:
   - npm test
