@@ -4,7 +4,6 @@ var spawn = require("cross-spawn");
 var _ = require("lodash");
 var elmBinaryName = "elm";
 var fs = require("fs");
-var path = require("path");
 var temp = require("temp").track();
 var findAllDependencies = require("find-elm-dependencies").findAllDependencies;
 
@@ -180,9 +179,9 @@ function compilerArgsFromOptions(options) {
         case "output": return ["--output", value];
         case "report": return ["--report", value];
         case "debug":  return ["--debug"];
-        case "docs":   return ["--docs", value]
+        case "docs":   return ["--docs", value];
         case "optimize":   return ["--optimize"];
-        case "runtimeOptions":   return ["+RTS", value, "-RTS"]
+        case "runtimeOptions":   return ["+RTS", value, "-RTS"];
         default:
           if (supportedOptions.indexOf(opt) === -1) {
               if (opt === "yes") {
