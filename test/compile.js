@@ -54,7 +54,7 @@ describe("#compileToString", function() {
     var opts = {
       verbose: true,
       cwd: fixturesDir,
-      runtimeOptions: "-A128M -H128M -n8m"
+      runtimeOptions: ["-A128M", "-H128M", "-n8m"]
     };
 
     return expect(compiler

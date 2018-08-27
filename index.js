@@ -181,7 +181,7 @@ function compilerArgsFromOptions(options) {
         case "debug":  return ["--debug"];
         case "docs":   return ["--docs", value];
         case "optimize":   return ["--optimize"];
-        case "runtimeOptions":   return ["+RTS", value, "-RTS"];
+        case "runtimeOptions":   return [].concat(["+RTS"], value ,["-RTS"]);
         default:
           if (supportedOptions.indexOf(opt) === -1) {
               if (opt === "yes") {
