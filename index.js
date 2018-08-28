@@ -67,16 +67,18 @@ function compilerErrorToString(err, pathToElm) {
   if ((typeof err === "object") && (typeof err.code === "string")) {
     switch (err.code) {
       case "ENOENT":
-        return ("Could not find Elm compiler \"" + pathToElm + "\". Is it installed?")
+        return "Could not find Elm compiler \"" + pathToElm + "\". Is it installed?";
 
       case "EACCES":
-        return ("Elm compiler \"" + pathToElm + "\" did not have permission to run. Do you need to give it executable permissions?");
+        return "Elm compiler \"" + pathToElm + "\" did not have permission to run. Do you need to give it executable permissions?";
 
       default:
-        return ("Error attempting to run Elm compiler \"" + pathToElm + "\":\n" + err);
+        return "Error attempting to run Elm compiler \"" + pathToElm + "\":\n" + err;
     }
+  } else if ((typeof err === "object") && (typeof err.message === "string")) {
+    return JSON.stringify(err.message);
   } else {
-    return ("Exception thrown when attempting to run Elm compiler " + JSON.stringify(pathToElm) + ":\n");
+    return "Exception thrown when attempting to run Elm compiler " + JSON.stringify(pathToElm);
   }
 }
 
