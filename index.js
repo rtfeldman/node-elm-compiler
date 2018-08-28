@@ -186,6 +186,10 @@ function compilerArgsFromOptions(options) {
           if (supportedOptions.indexOf(opt) === -1) {
               if (opt === "yes") {
                 throw new Error('node-elm-compiler received the `yes` option, but that was removed in Elm 0.19. Try re-running without passing the `yes` option.');
+              } else if (opt === "warn") {
+                throw new Error('node-elm-compiler received the `warn` option, but that was removed in Elm 0.19. Try re-running without passing the `warn` option.');
+              } else if (opt === "pathToMake") {
+                throw new Error('node-elm-compiler received the `pathToMake` option, but that was renamed to `pathToElm` in Elm 0.19. Try re-running after renaming the parameter to `pathToElm`.');
               } else {
                 throw new Error('node-elm-compiler was given an unrecognized Elm compiler option: ' + opt);
               }
