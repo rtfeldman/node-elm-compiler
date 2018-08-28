@@ -2,26 +2,23 @@
 
 var spawn = require("cross-spawn");
 var _ = require("lodash");
-var compilerBinaryName = "elm-make";
+var elmBinaryName = "elm";
 var fs = require("fs");
-var path = require("path");
 var temp = require("temp").track();
 var findAllDependencies = require("find-elm-dependencies").findAllDependencies;
 
 var defaultOptions     = {
-  emitWarning: console.warn,
   spawn:      spawn,
   cwd:        undefined,
-  pathToMake: undefined,
-  yes:        undefined,
+  pathToElm:  undefined,
   help:       undefined,
   output:     undefined,
   report:     undefined,
-  warn:       undefined,
   debug:      undefined,
   verbose:    false,
   processOpts: undefined,
   docs:       undefined,
+  optimize:   undefined,
 };
 
 var supportedOptions = _.keys(defaultOptions);
@@ -40,9 +37,9 @@ function prepareOptions(options, spawnFn) {
 
 function prepareProcessArgs(sources, options) {
   var preparedSources = prepareSources(sources);
+  var compilerArgs = compilerArgsFromOptions(options);
 
-  var compilerArgs = compilerArgsFromOptions(options, options.emitWarning);
-  return preparedSources ? preparedSources.concat(compilerArgs) : compilerArgs;
+  return ["make"].concat(preparedSources ? preparedSources.concat(compilerArgs) : compilerArgs);
 }
 
 function prepareProcessOpts(options) {
@@ -51,7 +48,7 @@ function prepareProcessOpts(options) {
 
 }
 
-function runCompiler(sources, options, pathToMake) {
+function runCompiler(sources, options, pathToElm) {
   if (typeof options.spawn !== "function") {
     throw "options.spawn was a(n) " + (typeof options.spawn) + " instead of a function.";
   }
@@ -60,48 +57,50 @@ function runCompiler(sources, options, pathToMake) {
   var processOpts = prepareProcessOpts(options);
 
   if (options.verbose) {
-    console.log(["Running", pathToMake].concat(processArgs || []).join(" "));
+    console.log(["Running", pathToElm].concat(processArgs).join(" "));
   }
 
-  return options.spawn(pathToMake, processArgs, processOpts);
+  return options.spawn(pathToElm, processArgs, processOpts);
 }
 
-function handleCompilerError(err, pathToMake) {
+function compilerErrorToString(err, pathToElm) {
   if ((typeof err === "object") && (typeof err.code === "string")) {
-    handleError(pathToMake, err);
-  } else {
-    console.error("Exception thrown when attempting to run Elm compiler " + JSON.stringify(pathToMake) + ":\n");
-  }
-  throw err;
+    switch (err.code) {
+      case "ENOENT":
+        return ("Could not find Elm compiler \"" + pathToElm + "\". Is it installed?")
 
-  process.exit(1);
+      case "EACCES":
+        return ("Elm compiler \"" + pathToElm + "\" did not have permission to run. Do you need to give it executable permissions?");
+
+      default:
+        return ("Error attempting to run Elm compiler \"" + pathToElm + "\":\n" + err);
+    }
+  } else {
+    return ("Exception thrown when attempting to run Elm compiler " + JSON.stringify(pathToElm) + ":\n");
+  }
 }
 
 function compileSync(sources, options) {
   var optionsWithDefaults = prepareOptions(options, options.spawn || spawn.sync);
-  var pathToMake = options.pathToMake || compilerBinaryName;
+  var pathToElm = options.pathToElm || elmBinaryName;
 
   try {
-    return runCompiler(sources, optionsWithDefaults, pathToMake);
+    return runCompiler(sources, optionsWithDefaults, pathToElm);
   } catch (err) {
-    handleCompilerError(err, pathToMake);
+    throw compilerErrorToString(err, pathToElm);
   }
 }
 
 function compile(sources, options) {
   var optionsWithDefaults = prepareOptions(options, options.spawn || spawn);
-  var pathToMake = options.pathToMake || compilerBinaryName;
+  var pathToElm = options.pathToElm || elmBinaryName;
 
 
   try {
-    return runCompiler(sources, optionsWithDefaults, pathToMake)
-      .on('error', function(err) {
-        handleError(pathToMake, err);
-
-        process.exit(1);
-      });
+    return runCompiler(sources, optionsWithDefaults, pathToElm)
+      .on('error', function(err) { throw(err); });
   } catch (err) {
-    handleCompilerError(err, pathToMake);
+    throw compilerErrorToString(err, pathToElm);
   }
 }
 
@@ -124,7 +123,13 @@ function compileToString(sources, options){
       options.output = info.path;
       options.processOpts = { stdio: 'pipe' }
 
-      var compiler = compile(sources, options);
+      var compiler;
+
+      try {
+        compiler = compile(sources, options);
+      } catch(compileError) {
+        return reject(compileError);
+      }
 
       compiler.stdout.setEncoding("utf8");
       compiler.stderr.setEncoding("utf8");
@@ -164,33 +169,26 @@ function compileToStringSync(sources, options) {
   return fs.readFileSync(file.path, {encoding: "utf8"});
 }
 
-function handleError(pathToMake, err) {
-  if (err.code === "ENOENT") {
-    console.error("Could not find Elm compiler \"" + pathToMake + "\". Is it installed?")
-  } else if (err.code === "EACCES") {
-    console.error("Elm compiler \"" + pathToMake + "\" did not have permission to run. Do you need to give it executable permissions?");
-  } else {
-    console.error("Error attempting to run Elm compiler \"" + pathToMake + "\":\n" + err);
-  }
-}
-
 // Converts an object of key/value pairs to an array of arguments suitable
 // to be passed to child_process.spawn for elm-make.
-function compilerArgsFromOptions(options, emitWarning) {
+function compilerArgsFromOptions(options) {
   return _.flatten(_.map(options, function(value, opt) {
     if (value) {
       switch(opt) {
-        case "yes":    return ["--yes"];
         case "help":   return ["--help"];
         case "output": return ["--output", value];
         case "report": return ["--report", value];
-        case "warn":   return ["--warn"];
         case "debug":  return ["--debug"];
-        case "docs":   return ["--docs", value]
-        case "runtimeOptions":   return [].concat(["+RTS"], value ,["-RTS"])
+        case "docs":   return ["--docs", value];
+        case "optimize":   return ["--optimize"];
+        case "runtimeOptions":   return [].concat(["+RTS"], value ,["-RTS"]);
         default:
           if (supportedOptions.indexOf(opt) === -1) {
-            emitWarning('Unknown Elm compiler option: ' + opt);
+              if (opt === "yes") {
+                throw new Error('node-elm-compiler received the `yes` option, but that was removed in Elm 0.19. Try re-running without passing the `yes` option.');
+              } else {
+                throw new Error('node-elm-compiler was given an unrecognized Elm compiler option: ' + opt);
+              }
           }
 
           return [];

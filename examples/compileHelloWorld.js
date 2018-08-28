@@ -8,10 +8,10 @@ compile(["./HelloWorld.elm"], {
 });
 
 
-compileToString(["./HelloWorld.elm"], { yes: true }).then(function(data){
-    console.log("Text", data.toString());
+compileToString(["./HelloWorld.elm"], {}).then(function(data){
+    console.log("compileToString produced a string with this length:", data.toString().length);
 });
 
-compileToString(["./HelloWorld.elm"], { yes: true, output: "index.html" }).then(function(data){
-    console.log("Text", data.toString());
+compileToString(["./HelloWorld.elm"], { output: "index.html" }).then(function(data){
+    console.log("compileToString --output index.html produced a string with this length:", data.toString().length);
 });

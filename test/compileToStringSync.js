@@ -1,5 +1,4 @@
 var chai = require("chai");
-// var spies = require("chia-spies");
 var path = require("path");
 var compiler = require(path.join(__dirname, ".."));
 
@@ -13,20 +12,18 @@ function prependFixturesDir(filename) {
 
 describe("#compileToStringSync", function() {
   it('returns string JS output of the given elm file', function() {
-    var opts = {yes: true, verbose: true, cwd: fixturesDir};
+    var opts = {verbose: true, cwd: fixturesDir};
     var result = compiler.compileToStringSync(prependFixturesDir("Parent.elm"), opts);
 
-    expect(result).to.include("globalElm[publicModule] = Elm[publicModule];");
-    expect(result).to.include("Elm['Parent'] = Elm['Parent'] || {}");
+    expect(result).to.include("_Platform_export");
   });
 
   it('returns html output given "html" output option', function() {
-    var opts = {yes: true, verbose: true, cwd: fixturesDir, output: '.html'};
+    var opts = {verbose: true, cwd: fixturesDir, output: '.html'};
     var result = compiler.compileToStringSync(prependFixturesDir("Parent.elm"), opts);
 
     expect(result).to.include('<!DOCTYPE HTML>');
     expect(result).to.include('<title>Parent</title>');
-    expect(result).to.include("globalElm[publicModule] = Elm[publicModule];");
-    expect(result).to.include("Elm['Parent'] = Elm['Parent'] || {}");
+    expect(result).to.include("_Platform_export");
   });
 });

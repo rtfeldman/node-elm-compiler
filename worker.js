@@ -1,11 +1,9 @@
-var fs = require("fs");
 var temp = require("temp").track();
 var path = require("path");
 var jsEmitterFilename = "emitter.js";
 
 var KNOWN_MODULES =
   [
-    "Native",
     "fullscreen",
     "embed",
     "worker",
@@ -42,7 +40,7 @@ module.exports = function(compile) {
       .then(function (tmpDirPath) {
         var dest = path.join(tmpDirPath, jsEmitterFilename);
 
-        return compileEmitter(compile, modulePath, {output: dest, yes: true})
+        return compileEmitter(compile, modulePath, {output: dest})
           .then(function() { return runWorker(dest, moduleName, workerArgs) });
       })
       .then(function(worker) {
@@ -54,7 +52,7 @@ module.exports = function(compile) {
         throw Error(err);
       });
   };
-}
+};
 
 function createTmpDir() {
   return new Promise(function (resolve, reject) {
@@ -100,13 +98,13 @@ function noPortsMessage(moduleName){
 
 function runWorker(jsFilename, moduleName, workerArgs) {
   return new Promise(function (resolve, reject) {
-    var Elm = require(jsFilename);
+    var Elm = require(jsFilename).Elm;
 
     if (!(moduleName in Elm)){
       return reject(missingEntryModuleMessage(moduleName, Elm));
     }
 
-    var worker = Elm[moduleName].worker(workerArgs);
+    var worker = Elm[moduleName].init(workerArgs);
 
     if (Object.keys(worker.ports).length === 0){
       return reject(noPortsMessage(moduleName, portName));
