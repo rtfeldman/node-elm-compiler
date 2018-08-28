@@ -14,6 +14,18 @@ describe("#compileSync", function() {
   // Use a timeout of 5 minutes because Travis on Linux can be SUPER slow.
   this.timeout(300000);
 
+  it("succeeds on SimplestMain", function () {
+    var opts = {
+      verbose: true,
+      cwd: fixturesDir
+    };
+    var compileProcess = compiler.compileSync(prependFixturesDir("SimplestMain.elm"), opts);
+
+    var exitCode = compileProcess.status;
+    var desc = "Expected elm make to have exit code 0";
+    expect(exitCode, desc).to.equal(0);
+  });
+
   it("reports errors on bad source", function () {
     var opts = {
       verbose: true,
