@@ -67,16 +67,18 @@ function compilerErrorToString(err, pathToElm) {
   if ((typeof err === "object") && (typeof err.code === "string")) {
     switch (err.code) {
       case "ENOENT":
-        return ("Could not find Elm compiler \"" + pathToElm + "\". Is it installed?")
+        return "Could not find Elm compiler \"" + pathToElm + "\". Is it installed?";
 
       case "EACCES":
-        return ("Elm compiler \"" + pathToElm + "\" did not have permission to run. Do you need to give it executable permissions?");
+        return "Elm compiler \"" + pathToElm + "\" did not have permission to run. Do you need to give it executable permissions?";
 
       default:
-        return ("Error attempting to run Elm compiler \"" + pathToElm + "\":\n" + err);
+        return "Error attempting to run Elm compiler \"" + pathToElm + "\":\n" + err;
     }
+  } else if ((typeof err === "object") && (typeof err.message === "string")) {
+    return JSON.stringify(err.message);
   } else {
-    return ("Exception thrown when attempting to run Elm compiler " + JSON.stringify(pathToElm) + ":\n");
+    return "Exception thrown when attempting to run Elm compiler " + JSON.stringify(pathToElm);
   }
 }
 
@@ -186,6 +188,10 @@ function compilerArgsFromOptions(options) {
           if (supportedOptions.indexOf(opt) === -1) {
               if (opt === "yes") {
                 throw new Error('node-elm-compiler received the `yes` option, but that was removed in Elm 0.19. Try re-running without passing the `yes` option.');
+              } else if (opt === "warn") {
+                throw new Error('node-elm-compiler received the `warn` option, but that was removed in Elm 0.19. Try re-running without passing the `warn` option.');
+              } else if (opt === "pathToMake") {
+                throw new Error('node-elm-compiler received the `pathToMake` option, but that was renamed to `pathToElm` in Elm 0.19. Try re-running after renaming the parameter to `pathToElm`.');
               } else {
                 throw new Error('node-elm-compiler was given an unrecognized Elm compiler option: ' + opt);
               }
