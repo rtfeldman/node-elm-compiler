@@ -12,6 +12,10 @@ $ node compileHelloWorld.js
 
 # Releases
 
+## 5.0.1
+
+Add helpful errors if you use the obsolete `warn` and `pathToMake` flags. ([#75](https://github.com/rtfeldman/node-elm-compiler/pull/75))
+
 ## 5.0.0
 
 Add 0.19 support. Remove `yes` option. Add `optimize` option. Throw exceptions instead of emitting warnings or using process.exit.
