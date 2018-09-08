@@ -100,7 +100,7 @@ function compile(sources, options) {
 
   try {
     return runCompiler(sources, optionsWithDefaults, pathToElm)
-      .on('error', function(err) { throw(err); });
+      .on('error', function(err) { throw compilerErrorToString(err); });
   } catch (err) {
     throw compilerErrorToString(err, pathToElm);
   }
