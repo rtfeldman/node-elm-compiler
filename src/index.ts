@@ -208,7 +208,7 @@ function compilerArgsFromOptions(options) {
 module.exports = {
   compile: compile,
   compileSync: compileSync,
-  compileWorker: require("./worker.js")(compile),
+  compileWorker: require("./worker")(compile),
   compileToString: compileToString,
   compileToStringSync: compileToStringSync,
   findAllDependencies: findAllDependencies,
