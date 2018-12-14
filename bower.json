@@ -6,7 +6,7 @@
     "Richard Feldman <richard.t.feldman@gmail.com>"
   ],
   "description": "A Node.js interface to the Elm compiler binaries.",
-  "main": "index.js",
+  "main": "src/index.js",
   "keywords": [
     "elm",
     "node",

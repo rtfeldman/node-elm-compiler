@@ -7,18 +7,18 @@ var fs = require("fs");
 var temp = require("temp").track();
 var findAllDependencies = require("find-elm-dependencies").findAllDependencies;
 
-var defaultOptions     = {
-  spawn:      spawn,
-  cwd:        undefined,
-  pathToElm:  undefined,
-  help:       undefined,
-  output:     undefined,
-  report:     undefined,
-  debug:      undefined,
-  verbose:    false,
+var defaultOptions = {
+  spawn: spawn,
+  cwd: undefined,
+  pathToElm: undefined,
+  help: undefined,
+  output: undefined,
+  report: undefined,
+  debug: undefined,
+  verbose: false,
   processOpts: undefined,
-  docs:       undefined,
-  optimize:   undefined,
+  docs: undefined,
+  optimize: undefined,
 };
 
 var supportedOptions = _.keys(defaultOptions);
@@ -43,7 +43,7 @@ function prepareProcessArgs(sources, options) {
 }
 
 function prepareProcessOpts(options) {
-  var env = _.merge({LANG: 'en_US.UTF-8'}, process.env);
+  var env = _.merge({ LANG: 'en_US.UTF-8' }, process.env);
   return _.merge({ env: env, stdio: "inherit", cwd: options.cwd }, options.processOpts);
 
 }
@@ -100,7 +100,7 @@ function compile(sources, options) {
 
   try {
     return runCompiler(sources, optionsWithDefaults, pathToElm)
-      .on('error', function(err) { throw(err); });
+      .on('error', function (err) { throw (err); });
   } catch (err) {
     throw compilerErrorToString(err, pathToElm);
   }
@@ -111,14 +111,14 @@ function compile(sources, options) {
 // If you want html instead of js, use options object to set
 // output to a html file instead
 // creates a temp file and deletes it after reading
-function compileToString(sources, options){
-  if (typeof options.output === "undefined"){
+function compileToString(sources, options) {
+  if (typeof options.output === "undefined") {
     options.output = '.js';
   }
 
-  return new Promise(function(resolve, reject){
-    temp.open({ suffix: options.output }, function(err, info){
-      if (err){
+  return new Promise(function (resolve, reject) {
+    temp.open({ suffix: options.output }, function (err, info) {
+      if (err) {
         return reject(err);
       }
 
@@ -129,7 +129,7 @@ function compileToString(sources, options){
 
       try {
         compiler = compile(sources, options);
-      } catch(compileError) {
+      } catch (compileError) {
         return reject(compileError);
       }
 
@@ -137,30 +137,30 @@ function compileToString(sources, options){
       compiler.stderr.setEncoding("utf8");
 
       var output = '';
-      compiler.stdout.on('data', function(chunk) {
+      compiler.stdout.on('data', function (chunk) {
         output += chunk;
       });
-      compiler.stderr.on('data', function(chunk) {
+      compiler.stderr.on('data', function (chunk) {
         output += chunk;
       });
 
-      compiler.on("close", function(exitCode) {
-          if (exitCode !== 0) {
-            return reject(new Error('Compilation failed\n' + output));
-          } else if (options.verbose) {
-            console.log(output);
-          }
+      compiler.on("close", function (exitCode) {
+        if (exitCode !== 0) {
+          return reject(new Error('Compilation failed\n' + output));
+        } else if (options.verbose) {
+          console.log(output);
+        }
 
-          fs.readFile(info.path, {encoding: "utf8"}, function(err, data){
-            return err ? reject(err) : resolve(data);
-          });
+        fs.readFile(info.path, { encoding: "utf8" }, function (err, data) {
+          return err ? reject(err) : resolve(data);
         });
+      });
     });
   });
 }
 
 function compileToStringSync(sources, options) {
-  if (typeof options.output === "undefined"){
+  if (typeof options.output === "undefined") {
     options.output = '.js';
   }
 
@@ -168,33 +168,33 @@ function compileToStringSync(sources, options) {
   options.output = file.path;
   compileSync(sources, options);
 
-  return fs.readFileSync(file.path, {encoding: "utf8"});
+  return fs.readFileSync(file.path, { encoding: "utf8" });
 }
 
 // Converts an object of key/value pairs to an array of arguments suitable
 // to be passed to child_process.spawn for elm-make.
 function compilerArgsFromOptions(options) {
-  return _.flatten(_.map(options, function(value, opt) {
+  return _.flatten(_.map(options, function (value, opt) {
     if (value) {
-      switch(opt) {
-        case "help":   return ["--help"];
+      switch (opt) {
+        case "help": return ["--help"];
         case "output": return ["--output", value];
         case "report": return ["--report", value];
-        case "debug":  return ["--debug"];
-        case "docs":   return ["--docs", value];
-        case "optimize":   return ["--optimize"];
-        case "runtimeOptions":   return [].concat(["+RTS"], value ,["-RTS"]);
+        case "debug": return ["--debug"];
+        case "docs": return ["--docs", value];
+        case "optimize": return ["--optimize"];
+        case "runtimeOptions": return [].concat(["+RTS"], value, ["-RTS"]);
         default:
           if (supportedOptions.indexOf(opt) === -1) {
-              if (opt === "yes") {
-                throw new Error('node-elm-compiler received the `yes` option, but that was removed in Elm 0.19. Try re-running without passing the `yes` option.');
-              } else if (opt === "warn") {
-                throw new Error('node-elm-compiler received the `warn` option, but that was removed in Elm 0.19. Try re-running without passing the `warn` option.');
-              } else if (opt === "pathToMake") {
-                throw new Error('node-elm-compiler received the `pathToMake` option, but that was renamed to `pathToElm` in Elm 0.19. Try re-running after renaming the parameter to `pathToElm`.');
-              } else {
-                throw new Error('node-elm-compiler was given an unrecognized Elm compiler option: ' + opt);
-              }
+            if (opt === "yes") {
+              throw new Error('node-elm-compiler received the `yes` option, but that was removed in Elm 0.19. Try re-running without passing the `yes` option.');
+            } else if (opt === "warn") {
+              throw new Error('node-elm-compiler received the `warn` option, but that was removed in Elm 0.19. Try re-running without passing the `warn` option.');
+            } else if (opt === "pathToMake") {
+              throw new Error('node-elm-compiler received the `pathToMake` option, but that was renamed to `pathToElm` in Elm 0.19. Try re-running after renaming the parameter to `pathToElm`.');
+            } else {
+              throw new Error('node-elm-compiler was given an unrecognized Elm compiler option: ' + opt);
+            }
           }
 
           return [];
