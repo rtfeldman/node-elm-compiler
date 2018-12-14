@@ -30,3 +30,7 @@ README.md
 
 tests
 test
+
+# Do not distribute TypeScript and source files
+src
+tsconfig.json
