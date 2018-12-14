@@ -4,6 +4,7 @@
   "description": "A Node.js interface to the Elm compiler binaries.",
   "main": "src/index.js",
   "scripts": {
+    "build": "tsc",
     "test": "rm -rf test/fixtures/elm-stuff & mocha test/*.js"
   },
   "repository": {
@@ -33,6 +34,7 @@
   "devDependencies": {
     "chai": "3.5.0",
     "glob": "7.1.1",
-    "mocha": "5.1.1"
+    "mocha": "5.1.1",
+    "typescript": "^3.2.2"
   }
 }
