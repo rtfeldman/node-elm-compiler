@@ -1,7 +1,7 @@
 {
   "name": "node-elm-compiler",
   "version": "5.0.1",
-  "description": "A Node.js interface to the Elm compiler binaries. Supports Elm version 0.17, 0.18",
+  "description": "A Node.js interface to the Elm compiler binaries.",
   "main": "index.js",
   "scripts": {
     "test": "rm -rf test/fixtures/elm-stuff; mocha test/*.js"
