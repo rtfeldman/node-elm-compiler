@@ -4,6 +4,7 @@
   "description": "A Node.js interface to the Elm compiler binaries.",
   "main": "src/index.js",
   "scripts": {
+    "prepack": "npm run build",
     "build": "tsc",
     "test": "rm -rf test/fixtures/elm-stuff & mocha test/*.js"
   },
