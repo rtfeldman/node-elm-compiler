@@ -31,7 +31,7 @@ var KNOWN_MODULES =
 
 
 // elmModuleName is optional, and is by default inferred based on the filename.
-module.exports = function(compile) {
+module.exports = function (compile) {
   return function (projectRootDir, modulePath, moduleName, workerArgs) {
     var originalWorkingDir = process.cwd();
     process.chdir(projectRootDir);
@@ -40,14 +40,14 @@ module.exports = function(compile) {
       .then(function (tmpDirPath) {
         var dest = path.join(tmpDirPath, jsEmitterFilename);
 
-        return compileEmitter(compile, modulePath, {output: dest})
-          .then(function() { return runWorker(dest, moduleName, workerArgs) });
+        return compileEmitter(compile, modulePath, { output: dest })
+          .then(function () { return runWorker(dest, moduleName, workerArgs) });
       })
-      .then(function(worker) {
+      .then(function (worker) {
         process.chdir(originalWorkingDir);
         return worker;
       })
-      .catch(function(err) {
+      .catch(function (err) {
         process.chdir(originalWorkingDir);
         throw Error(err);
       });
@@ -66,19 +66,19 @@ function createTmpDir() {
   });
 }
 
-function suggestModulesNames(Elm){
-  return Object.keys(Elm).filter(function(key){
+function suggestModulesNames(Elm) {
+  return Object.keys(Elm).filter(function (key) {
     return KNOWN_MODULES.indexOf(key) === -1;
   })
 }
 
-function missingEntryModuleMessage(moduleName, Elm){
+function missingEntryModuleMessage(moduleName, Elm) {
   var errorMessage = "I couldn't find the entry module " + moduleName + ".\n";
   var suggestions = suggestModulesNames(Elm);
 
-  if (suggestions.length > 1){
+  if (suggestions.length > 1) {
     errorMessage += "\nMaybe you meant one of these: " + suggestions.join(",");
-  } else if (suggestions.length === 1){
+  } else if (suggestions.length === 1) {
     errorMessage += "\nMaybe you meant: " + suggestions;
   }
 
@@ -87,7 +87,7 @@ function missingEntryModuleMessage(moduleName, Elm){
   return errorMessage;
 }
 
-function noPortsMessage(moduleName){
+function noPortsMessage(moduleName) {
   var errorMessage = "The module " + moduleName + " doesn't expose any ports!\n";
 
   errorMessage += "\n\nTry adding something like";
@@ -100,13 +100,15 @@ function runWorker(jsFilename, moduleName, workerArgs) {
   return new Promise(function (resolve, reject) {
     var Elm = require(jsFilename).Elm;
 
-    if (!(moduleName in Elm)){
+    if (!(moduleName in Elm)) {
       return reject(missingEntryModuleMessage(moduleName, Elm));
     }
 
     var worker = Elm[moduleName].init(workerArgs);
 
-    if (Object.keys(worker.ports).length === 0){
+    if (Object.keys(worker.ports).length === 0) {
+      // TODO: Remove the ignore.
+      // @ts-ignore
       return reject(noPortsMessage(moduleName, portName));
     }
 
@@ -115,9 +117,9 @@ function runWorker(jsFilename, moduleName, workerArgs) {
 }
 
 function compileEmitter(compile, src, options) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     compile(src, options)
-      .on("close", function(exitCode) {
+      .on("close", function (exitCode) {
         if (exitCode === 0) {
           resolve(exitCode);
         } else {

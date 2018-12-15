@@ -1,6 +1,6 @@
 var chai = require("chai")
 var path = require("path");
-var compiler = require(path.join(__dirname, ".."));
+var compiler = require(path.join(__dirname, "../src"));
 
 var expect = chai.expect;
 
@@ -10,7 +10,7 @@ function prependFixturesDir(filename) {
   return path.join(fixturesDir, filename);
 }
 
-describe("#compileSync", function() {
+describe("#compileSync", function () {
   // Use a timeout of 5 minutes because Travis on Linux can be SUPER slow.
   this.timeout(300000);
 
@@ -46,7 +46,7 @@ describe("#compileSync", function() {
       cwd: fixturesDir
     };
 
-    expect(function() {
+    expect(function () {
       var compileProcess = compiler.compileSync(prependFixturesDir("Parent.elm"), opts);
     }).to.throw();
   });
