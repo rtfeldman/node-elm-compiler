@@ -5,8 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "prepack": "npm run build",
-    "build": "tsc",
-    "test": "rm -rf test/fixtures/elm-stuff & ts-mocha test/*.ts"
+    "build": "rm -rf dist/ & tsc",
   },
   "repository": {
     "type": "git",
