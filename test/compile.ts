@@ -1,6 +1,6 @@
 var chai = require("chai")
 var path = require("path");
-var compiler = require(path.join(__dirname, "../src"));
+var compiler = require(path.join(__dirname, ".."));
 var childProcess = require("child_process");
 var _ = require("lodash");
 var temp = require("temp");
