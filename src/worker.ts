@@ -107,9 +107,7 @@ function runWorker(jsFilename, moduleName, workerArgs) {
     var worker = Elm[moduleName].init(workerArgs);
 
     if (Object.keys(worker.ports).length === 0) {
-      // TODO: Remove the ignore.
-      // @ts-ignore
-      return reject(noPortsMessage(moduleName, portName));
+      return reject(noPortsMessage(moduleName));
     }
 
     return resolve(worker);
