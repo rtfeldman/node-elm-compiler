@@ -2,7 +2,7 @@
   "name": "node-elm-compiler",
   "version": "5.0.1",
   "description": "A Node.js interface to the Elm compiler binaries.",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "prepack": "npm run build",
     "build": "tsc",
