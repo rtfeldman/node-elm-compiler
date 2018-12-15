@@ -8,7 +8,7 @@
     "build": "rm -rf dist/ & tsc",
     "test": "npm run build & npm run runTests",
     "runTests": "rm -rf test/fixtures/elm-stuff & mocha test/**/*.ts --require ts-node/register --watch-extensions ts",
-    "test:dev": "cross-env NODE_TEST='dev' npm run runTests"
+    "test:watch": "cross-env NODE_TEST='dev' npm run runTests -- --watch"
   },
   "repository": {
     "type": "git",
