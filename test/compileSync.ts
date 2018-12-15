@@ -1,6 +1,6 @@
 var chai = require("chai")
 var path = require("path");
-var compiler = require(path.join(__dirname, ".."));
+var compiler = require(path.join(__dirname, "..", process.env["NODE_TEST"] == "dev" ? "src" : ""));
 
 var expect = chai.expect;
 
