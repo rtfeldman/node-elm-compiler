@@ -5,8 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "prepack": "npm run build",
-    "build": "rm -rf dist/ & tsc",
-    "test": "rm -rf test/fixtures/elm-stuff & mocha test/**/*.ts --require ts-node/register --watch-extensions ts"
+    "build": "rm -rf dist/ && tsc",
+    "test": "rm -rf test/fixtures/elm-stuff && mocha test/**/*.ts --require ts-node/register --watch-extensions ts"
   },
   "repository": {
     "type": "git",
