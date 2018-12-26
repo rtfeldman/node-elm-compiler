@@ -4,6 +4,7 @@ var spawn = require("cross-spawn");
 var _ = require("lodash");
 var elmBinaryName = "elm";
 var fs = require("fs");
+var path = require("path");
 var temp = require("temp").track();
 var findAllDependencies = require("find-elm-dependencies").findAllDependencies;
 

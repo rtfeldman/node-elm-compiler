@@ -118,8 +118,6 @@ describe("#compileToString", function () {
     };
 
     var runCompile = function () {
-      // running compileToString right after each other can cause raceconditions
-      // the problem is that temp.cleanupSync removes all tempfiles
       compiler.compileToString(prependFixturesDir("Parent.elm"), opts)
       var compilePromise = compiler.compileToString(prependFixturesDir("Parent.elm"), opts)
 
