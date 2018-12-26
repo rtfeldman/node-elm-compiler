@@ -128,11 +128,15 @@ describe("#compileToString", function () {
         expect(result.toString(), desc).to.be.a('string');
       });
     };
-    var promises = [];
+
+    // Compiling in parallel leads to issues with the cache. Therefore we chain
+    // the compilations instead. For details, see https://github.com/elm/compiler/issues/1853.
+    // This issue is tracked as https://github.com/rtfeldman/node-elm-compiler/issues/86.
+    let promiseChain = Promise.resolve();
     for (var i = 0; i < 10; i++) {
-      promises.push(runCompile());
+      promiseChain = promiseChain.then(() => runCompile());
     }
-    return Promise.all(promises);
+    return promiseChain;
   });
 });
 
