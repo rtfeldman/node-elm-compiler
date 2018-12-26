@@ -118,7 +118,6 @@ describe("#compileToString", function () {
     };
 
     var runCompile = function () {
-      compiler.compileToString(prependFixturesDir("Parent.elm"), opts)
       var compilePromise = compiler.compileToString(prependFixturesDir("Parent.elm"), opts)
 
       return compilePromise.then(function (result) {
