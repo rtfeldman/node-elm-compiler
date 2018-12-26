@@ -4,6 +4,7 @@ var spawn = require("cross-spawn");
 var _ = require("lodash");
 var elmBinaryName = "elm";
 var fs = require("fs");
+var path = require("path");
 var temp = require("temp").track();
 var findAllDependencies = require("find-elm-dependencies").findAllDependencies;
 
@@ -112,12 +113,13 @@ function compile(sources, options) {
 // output to a html file instead
 // creates a temp file and deletes it after reading
 function compileToString(sources, options) {
-  if (typeof options.output === "undefined") {
-    options.output = '.js';
+  let suffix = '.js';
+  if (options.output) {
+    suffix = path.extname(options.output) || '.js';
   }
 
   return new Promise(function (resolve, reject) {
-    temp.open({ suffix: options.output }, function (err, info) {
+    temp.open({ suffix }, function (err, info) {
       if (err) {
         return reject(err);
       }
