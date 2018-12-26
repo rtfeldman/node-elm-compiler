@@ -134,6 +134,20 @@ describe("#compileToString", function () {
     }
     return Promise.all(promises);
   });
+
+  it("handles output suffix correctly", function () {
+    var opts = {
+      verbose: true,
+      cwd: fixturesDir,
+      output: prependFixturesDir("compiled.html"),
+    };
+
+    return compiler.compileToString(prependFixturesDir("Parent.elm"), opts)
+      .then(function (result) {
+        var desc = "Expected elm make to return the result of the compilation";
+        expect(result.toString(), desc).to.be.a('string');
+      });
+  });
 });
 
 describe("#compileWorker", function () {
