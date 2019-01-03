@@ -4,6 +4,7 @@ var spawn = require("cross-spawn");
 var _ = require("lodash");
 var elmBinaryName = "elm";
 var fs = require("fs");
+var path = require("path");
 var temp = require("temp").track();
 var findAllDependencies = require("find-elm-dependencies").findAllDependencies;
 
@@ -106,18 +107,24 @@ function compile(sources, options) {
   }
 }
 
+function getSuffix(outputPath, defaultSuffix) {
+  if (outputPath) {
+    return path.extname(outputPath) || defaultSuffix;
+  } else {
+    return defaultSuffix;
+  }
+}
+
 // write compiled Elm to a string output
 // returns a Promise which will contain a Buffer of the text
 // If you want html instead of js, use options object to set
 // output to a html file instead
 // creates a temp file and deletes it after reading
 function compileToString(sources, options) {
-  if (typeof options.output === "undefined") {
-    options.output = '.js';
-  }
+  const suffix = getSuffix(options.output, '.js');
 
   return new Promise(function (resolve, reject) {
-    temp.open({ suffix: options.output }, function (err, info) {
+    temp.open({ suffix }, function (err, info) {
       if (err) {
         return reject(err);
       }
@@ -160,11 +167,9 @@ function compileToString(sources, options) {
 }
 
 function compileToStringSync(sources, options) {
-  if (typeof options.output === "undefined") {
-    options.output = '.js';
-  }
+  const suffix = getSuffix(options.output, '.js');
 
-  const file = temp.openSync({ suffix: options.output });
+  const file = temp.openSync({ suffix });
   options.output = file.path;
   compileSync(sources, options);
 

@@ -19,7 +19,11 @@ describe("#compileToStringSync", function () {
   });
 
   it('returns html output given "html" output option', function () {
-    var opts = { verbose: true, cwd: fixturesDir, output: '.html' };
+    var opts = {
+      verbose: true,
+      cwd: fixturesDir,
+      output: prependFixturesDir('compiled.html'),
+    };
     var result = compiler.compileToStringSync(prependFixturesDir("Parent.elm"), opts);
 
     expect(result).to.include('<!DOCTYPE HTML>');
