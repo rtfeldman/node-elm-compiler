@@ -5,9 +5,9 @@
   "main": "dist/index.js",
   "scripts": {
     "prepack": "npm run build",
-    "build": "rm -rf dist/ & tsc",
-    "test": "npm run build & npm run runTests",
-    "runTests": "rm -rf test/fixtures/elm-stuff & mocha test/**/*.ts --require ts-node/register --watch-extensions ts",
+    "build": "rm -rf dist/ && tsc",
+    "test": "npm run build && npm run runTests",
+    "runTests": "rm -rf test/fixtures/elm-stuff && mocha test/**/*.ts --require ts-node/register --watch-extensions ts",
     "test:watch": "cross-env NODE_TEST='dev' npm run runTests -- --watch"
   },
   "repository": {
