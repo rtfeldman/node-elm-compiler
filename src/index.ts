@@ -87,7 +87,7 @@ function compileToString(sources, options) {
   });
 }
 
-function compileToStringSync(sources, options) {
+function compileToStringSync(sources: any, options: Options): string {
   const suffix = getSuffix(options.output, '.js');
 
   const file = temp.openSync({ suffix });
