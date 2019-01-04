@@ -41,7 +41,7 @@ function compileSync(sources, options) {
 // If you want html instead of js, use options object to set
 // output to a html file instead
 // creates a temp file and deletes it after reading
-function compileToString(sources, options) {
+function compileToString(sources: any, options: Options): Promise<string> {
   const suffix = getSuffix(options.output, '.js');
 
   return new Promise(function (resolve, reject) {
