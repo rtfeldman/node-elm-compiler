@@ -12,7 +12,7 @@ var elmBinaryName = "elm";
 temp.track();
 
 
-function compile(sources: string | string[], options: Options): ChildProcess {
+export function compile(sources: string | string[], options: Options): ChildProcess {
   var optionsWithDefaults = prepareOptions(options, options.spawn || spawn);
   var pathToElm = options.pathToElm || elmBinaryName;
 
@@ -96,7 +96,7 @@ function compileToStringSync(sources: string | string[], options: Options): stri
   return fs.readFileSync(file.path, { encoding: "utf8" });
 }
 
-type Options = {
+export type Options = {
   spawn: typeof spawn,
   runtimeOptions: string[],
   cwd: string,

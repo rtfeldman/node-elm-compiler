@@ -1,6 +1,8 @@
 import * as temp from "temp";
 import * as path from "path";
 
+import { compile as compileFunc, Options } from './index';
+
 temp.track();
 
 var jsEmitterFilename = "emitter.js";
@@ -32,6 +34,7 @@ var KNOWN_MODULES =
     "Css"
   ];
 
+type Compile = typeof compileFunc;
 
 // elmModuleName is optional, and is by default inferred based on the filename.
 module.exports = function (compile) {
@@ -117,7 +120,7 @@ function runWorker(jsFilename, moduleName, workerArgs) {
   });
 }
 
-function compileEmitter(compile, src, options) {
+function compileEmitter(compile: Compile, src: string, options: Options): Promise<number> {
   return new Promise(function (resolve, reject) {
     compile(src, options)
       .on("close", function (exitCode) {
