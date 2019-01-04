@@ -12,10 +12,9 @@ var elmBinaryName = "elm";
 temp.track();
 
 
-function compile(sources, options) {
+function compile(sources: any, options: Options): ChildProcess {
   var optionsWithDefaults = prepareOptions(options, options.spawn || spawn);
   var pathToElm = options.pathToElm || elmBinaryName;
-
 
   try {
     return runCompiler(sources, optionsWithDefaults, pathToElm)
