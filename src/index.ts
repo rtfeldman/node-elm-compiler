@@ -133,7 +133,7 @@ function prepareOptions(options, spawnFn) {
   return _.defaults({ spawn: spawnFn }, options, defaultOptions);
 }
 
-function runCompiler(sources, options, pathToElm) {
+function runCompiler(sources: any, options: Options, pathToElm: string): ChildProcess {
   if (typeof options.spawn !== "function") {
     throw "options.spawn was a(n) " + (typeof options.spawn) + " instead of a function.";
   }
