@@ -9,6 +9,92 @@ var elmBinaryName = "elm";
 
 temp.track();
 
+
+function compile(sources, options) {
+  var optionsWithDefaults = prepareOptions(options, options.spawn || spawn);
+  var pathToElm = options.pathToElm || elmBinaryName;
+
+
+  try {
+    return runCompiler(sources, optionsWithDefaults, pathToElm)
+      .on('error', function (err) { throw (err); });
+  } catch (err) {
+    throw compilerErrorToString(err, pathToElm);
+  }
+}
+
+function compileSync(sources, options) {
+  var optionsWithDefaults = prepareOptions(options, options.spawn || spawn.sync);
+  var pathToElm = options.pathToElm || elmBinaryName;
+
+  try {
+    return runCompiler(sources, optionsWithDefaults, pathToElm);
+  } catch (err) {
+    throw compilerErrorToString(err, pathToElm);
+  }
+}
+
+// write compiled Elm to a string output
+// returns a Promise which will contain a Buffer of the text
+// If you want html instead of js, use options object to set
+// output to a html file instead
+// creates a temp file and deletes it after reading
+function compileToString(sources, options) {
+  const suffix = getSuffix(options.output, '.js');
+
+  return new Promise(function (resolve, reject) {
+    temp.open({ suffix }, function (err, info) {
+      if (err) {
+        return reject(err);
+      }
+
+      options.output = info.path;
+      options.processOpts = { stdio: 'pipe' }
+
+      var compiler;
+
+      try {
+        compiler = compile(sources, options);
+      } catch (compileError) {
+        return reject(compileError);
+      }
+
+      compiler.stdout.setEncoding("utf8");
+      compiler.stderr.setEncoding("utf8");
+
+      var output = '';
+      compiler.stdout.on('data', function (chunk) {
+        output += chunk;
+      });
+      compiler.stderr.on('data', function (chunk) {
+        output += chunk;
+      });
+
+      compiler.on("close", function (exitCode) {
+        if (exitCode !== 0) {
+          return reject(new Error('Compilation failed\n' + output));
+        } else if (options.verbose) {
+          console.log(output);
+        }
+
+        fs.readFile(info.path, { encoding: "utf8" }, function (err, data) {
+          return err ? reject(err) : resolve(data);
+        });
+      });
+    });
+  });
+}
+
+function compileToStringSync(sources, options) {
+  const suffix = getSuffix(options.output, '.js');
+
+  const file = temp.openSync({ suffix });
+  options.output = file.path;
+  compileSync(sources, options);
+
+  return fs.readFileSync(file.path, { encoding: "utf8" });
+}
+
 var defaultOptions = {
   spawn: spawn,
   cwd: undefined,
@@ -84,29 +170,6 @@ function compilerErrorToString(err, pathToElm) {
   }
 }
 
-function compileSync(sources, options) {
-  var optionsWithDefaults = prepareOptions(options, options.spawn || spawn.sync);
-  var pathToElm = options.pathToElm || elmBinaryName;
-
-  try {
-    return runCompiler(sources, optionsWithDefaults, pathToElm);
-  } catch (err) {
-    throw compilerErrorToString(err, pathToElm);
-  }
-}
-
-function compile(sources, options) {
-  var optionsWithDefaults = prepareOptions(options, options.spawn || spawn);
-  var pathToElm = options.pathToElm || elmBinaryName;
-
-
-  try {
-    return runCompiler(sources, optionsWithDefaults, pathToElm)
-      .on('error', function (err) { throw (err); });
-  } catch (err) {
-    throw compilerErrorToString(err, pathToElm);
-  }
-}
 
 function getSuffix(outputPath, defaultSuffix) {
   if (outputPath) {
@@ -114,67 +177,6 @@ function getSuffix(outputPath, defaultSuffix) {
   } else {
     return defaultSuffix;
   }
-}
-
-// write compiled Elm to a string output
-// returns a Promise which will contain a Buffer of the text
-// If you want html instead of js, use options object to set
-// output to a html file instead
-// creates a temp file and deletes it after reading
-function compileToString(sources, options) {
-  const suffix = getSuffix(options.output, '.js');
-
-  return new Promise(function (resolve, reject) {
-    temp.open({ suffix }, function (err, info) {
-      if (err) {
-        return reject(err);
-      }
-
-      options.output = info.path;
-      options.processOpts = { stdio: 'pipe' }
-
-      var compiler;
-
-      try {
-        compiler = compile(sources, options);
-      } catch (compileError) {
-        return reject(compileError);
-      }
-
-      compiler.stdout.setEncoding("utf8");
-      compiler.stderr.setEncoding("utf8");
-
-      var output = '';
-      compiler.stdout.on('data', function (chunk) {
-        output += chunk;
-      });
-      compiler.stderr.on('data', function (chunk) {
-        output += chunk;
-      });
-
-      compiler.on("close", function (exitCode) {
-        if (exitCode !== 0) {
-          return reject(new Error('Compilation failed\n' + output));
-        } else if (options.verbose) {
-          console.log(output);
-        }
-
-        fs.readFile(info.path, { encoding: "utf8" }, function (err, data) {
-          return err ? reject(err) : resolve(data);
-        });
-      });
-    });
-  });
-}
-
-function compileToStringSync(sources, options) {
-  const suffix = getSuffix(options.output, '.js');
-
-  const file = temp.openSync({ suffix });
-  options.output = file.path;
-  compileSync(sources, options);
-
-  return fs.readFileSync(file.path, { encoding: "utf8" });
 }
 
 // Converts an object of key/value pairs to an array of arguments suitable
