@@ -102,7 +102,9 @@ function noPortsMessage(moduleName) {
   return errorMessage.trim();
 }
 
-function runWorker(jsFilename, moduleName, workerArgs) {
+type ElmWorker = object;
+
+function runWorker(jsFilename: string, moduleName: string, workerArgs: string[]): Promise<ElmWorker> {
   return new Promise(function (resolve, reject) {
     var Elm = require(jsFilename).Elm;
 
