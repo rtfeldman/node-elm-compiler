@@ -25,7 +25,7 @@ function compile(sources, options) {
   }
 }
 
-function compileSync(sources, options) {
+function compileSync(sources: any, options: Options): ChildProcess {
   var optionsWithDefaults = prepareOptions(options, options.spawn || spawn.sync);
   var pathToElm = options.pathToElm || elmBinaryName;
 
