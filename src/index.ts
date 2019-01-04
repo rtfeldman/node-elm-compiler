@@ -155,7 +155,7 @@ function prepareProcessArgs(sources, options) {
   return ["make"].concat(preparedSources ? preparedSources.concat(compilerArgs) : compilerArgs);
 }
 
-function prepareSources(sources) {
+function prepareSources(sources: any): string[] {
   if (!(sources instanceof Array || typeof sources === "string")) {
     throw "compile() received neither an Array nor a String for its sources argument.";
   }
