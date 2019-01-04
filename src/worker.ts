@@ -72,7 +72,9 @@ function createTmpDir() {
   });
 }
 
-function suggestModulesNames(Elm) {
+type ElmWorker = object;
+
+function suggestModulesNames(Elm: ElmWorker): string[] {
   return Object.keys(Elm).filter(function (key) {
     return KNOWN_MODULES.indexOf(key) === -1;
   })
@@ -101,8 +103,6 @@ function noPortsMessage(moduleName: string): string {
 
   return errorMessage.trim();
 }
-
-type ElmWorker = object;
 
 function runWorker(jsFilename: string, moduleName: string, workerArgs: string[]): Promise<ElmWorker> {
   return new Promise(function (resolve, reject) {
