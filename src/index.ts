@@ -5,6 +5,8 @@ import * as path from "path";
 import * as temp from "temp";
 import { findAllDependencies } from "find-elm-dependencies";
 
+import { SpawnOptions } from "child_process";
+
 var elmBinaryName = "elm";
 
 temp.track();
@@ -186,8 +188,7 @@ function compilerErrorToString(err, pathToElm) {
   }
 }
 
-
-function getSuffix(outputPath, defaultSuffix) {
+function getSuffix(outputPath: string, defaultSuffix: string): string {
   if (outputPath) {
     return path.extname(outputPath) || defaultSuffix;
   } else {
