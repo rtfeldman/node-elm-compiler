@@ -148,7 +148,7 @@ function runCompiler(sources, options, pathToElm) {
   return options.spawn(pathToElm, processArgs, processOpts);
 }
 
-function prepareProcessArgs(sources, options) {
+function prepareProcessArgs(sources: any, options: Options): string[] {
   var preparedSources = prepareSources(sources);
   var compilerArgs = compilerArgsFromOptions(options);
 
