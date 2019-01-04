@@ -93,7 +93,7 @@ function missingEntryModuleMessage(moduleName, Elm) {
   return errorMessage;
 }
 
-function noPortsMessage(moduleName) {
+function noPortsMessage(moduleName: string): string {
   var errorMessage = "The module " + moduleName + " doesn't expose any ports!\n";
 
   errorMessage += "\n\nTry adding something like";
