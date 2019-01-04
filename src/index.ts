@@ -12,7 +12,7 @@ var elmBinaryName = "elm";
 temp.track();
 
 
-function compile(sources: any, options: Options): ChildProcess {
+function compile(sources: string | string[], options: Options): ChildProcess {
   var optionsWithDefaults = prepareOptions(options, options.spawn || spawn);
   var pathToElm = options.pathToElm || elmBinaryName;
 
@@ -24,7 +24,7 @@ function compile(sources: any, options: Options): ChildProcess {
   }
 }
 
-function compileSync(sources: any, options: Options): ChildProcess {
+function compileSync(sources: string | string[], options: Options): ChildProcess {
   var optionsWithDefaults = prepareOptions(options, options.spawn || spawn.sync);
   var pathToElm = options.pathToElm || elmBinaryName;
 
@@ -40,7 +40,7 @@ function compileSync(sources: any, options: Options): ChildProcess {
 // If you want html instead of js, use options object to set
 // output to a html file instead
 // creates a temp file and deletes it after reading
-function compileToString(sources: any, options: Options): Promise<string> {
+function compileToString(sources: string | string[], options: Options): Promise<string> {
   const suffix = getSuffix(options.output, '.js');
 
   return new Promise(function (resolve, reject) {
@@ -86,7 +86,7 @@ function compileToString(sources: any, options: Options): Promise<string> {
   });
 }
 
-function compileToStringSync(sources: any, options: Options): string {
+function compileToStringSync(sources: string | string[], options: Options): string {
   const suffix = getSuffix(options.output, '.js');
 
   const file = temp.openSync({ suffix });
@@ -132,7 +132,7 @@ function prepareOptions(options: Options, spawnFn: typeof spawn): Options {
   return _.defaults({ spawn: spawnFn }, options, defaultOptions);
 }
 
-function runCompiler(sources: any, options: Options, pathToElm: string): ChildProcess {
+function runCompiler(sources: string | string[], options: Options, pathToElm: string): ChildProcess {
   if (typeof options.spawn !== "function") {
     throw "options.spawn was a(n) " + (typeof options.spawn) + " instead of a function.";
   }
@@ -147,14 +147,14 @@ function runCompiler(sources: any, options: Options, pathToElm: string): ChildPr
   return options.spawn(pathToElm, processArgs, processOpts);
 }
 
-function prepareProcessArgs(sources: any, options: Options): string[] {
+function prepareProcessArgs(sources: string | string[], options: Options): string[] {
   var preparedSources = prepareSources(sources);
   var compilerArgs = compilerArgsFromOptions(options);
 
   return ["make"].concat(preparedSources ? preparedSources.concat(compilerArgs) : compilerArgs);
 }
 
-function prepareSources(sources: any): string[] {
+function prepareSources(sources: string | string[]): string[] {
   if (!(sources instanceof Array || typeof sources === "string")) {
     throw "compile() received neither an Array nor a String for its sources argument.";
   }
