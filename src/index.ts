@@ -197,17 +197,17 @@ function getSuffix(outputPath, defaultSuffix) {
 
 // Converts an object of key/value pairs to an array of arguments suitable
 // to be passed to child_process.spawn for elm-make.
-function compilerArgsFromOptions(options) {
-  return _.flatten(_.map(options, function (value, opt) {
+function compilerArgsFromOptions(options: Options): string[] {
+  return _.flatten(_.map(options, function (value, opt): string[] {
     if (value) {
       switch (opt) {
         case "help": return ["--help"];
-        case "output": return ["--output", value];
-        case "report": return ["--report", value];
+        case "output": return ["--output", (value as string)];
+        case "report": return ["--report", (value as string)];
         case "debug": return ["--debug"];
-        case "docs": return ["--docs", value];
+        case "docs": return ["--docs", (value as string)];
         case "optimize": return ["--optimize"];
-        case "runtimeOptions": return [].concat(["+RTS"], value, ["-RTS"]);
+        case "runtimeOptions": return _.concat(["+RTS"], (value as string), ["-RTS"]);
         default:
           if (supportedOptions.indexOf(opt) === -1) {
             if (opt === "yes") {
