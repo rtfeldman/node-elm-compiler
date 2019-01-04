@@ -1,5 +1,8 @@
-var temp = require("temp").track();
-var path = require("path");
+import * as temp from "temp";
+import * as path from "path";
+
+temp.track();
+
 var jsEmitterFilename = "emitter.js";
 
 var KNOWN_MODULES =
@@ -37,7 +40,7 @@ module.exports = function (compile) {
     process.chdir(projectRootDir);
 
     return createTmpDir()
-      .then(function (tmpDirPath) {
+      .then(function (tmpDirPath: string) {
         var dest = path.join(tmpDirPath, jsEmitterFilename);
 
         return compileEmitter(compile, modulePath, { output: dest })

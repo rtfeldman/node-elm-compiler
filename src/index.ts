@@ -1,12 +1,13 @@
-'use strict';
+import * as spawn from "cross-spawn";
+import * as _ from "lodash"
+import * as fs from "fs";
+import * as path from "path";
+import * as temp from "temp";
+import { findAllDependencies } from "find-elm-dependencies";
 
-var spawn = require("cross-spawn");
-var _ = require("lodash");
 var elmBinaryName = "elm";
-var fs = require("fs");
-var path = require("path");
-var temp = require("temp").track();
-var findAllDependencies = require("find-elm-dependencies").findAllDependencies;
+
+temp.track();
 
 var defaultOptions = {
   spawn: spawn,
