@@ -78,7 +78,7 @@ function suggestModulesNames(Elm) {
   })
 }
 
-function missingEntryModuleMessage(moduleName, Elm) {
+function missingEntryModuleMessage(moduleName: string, Elm: ElmWorker): string {
   var errorMessage = "I couldn't find the entry module " + moduleName + ".\n";
   var suggestions = suggestModulesNames(Elm);
 
