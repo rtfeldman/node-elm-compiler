@@ -169,7 +169,7 @@ function runCompiler(sources, options, pathToElm) {
   return options.spawn(pathToElm, processArgs, processOpts);
 }
 
-function compilerErrorToString(err, pathToElm) {
+function compilerErrorToString(err: { code?: string, message?: string }, pathToElm: string): string {
   if ((typeof err === "object") && (typeof err.code === "string")) {
     switch (err.code) {
       case "ENOENT":
