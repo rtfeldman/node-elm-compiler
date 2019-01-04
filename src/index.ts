@@ -129,29 +129,8 @@ var defaultOptions: Partial<Options> = {
 
 var supportedOptions = _.keys(defaultOptions);
 
-function prepareSources(sources) {
-  if (!(sources instanceof Array || typeof sources === "string")) {
-    throw "compile() received neither an Array nor a String for its sources argument.";
-  }
-
-  return typeof sources === "string" ? [sources] : sources;
-}
-
 function prepareOptions(options, spawnFn) {
   return _.defaults({ spawn: spawnFn }, options, defaultOptions);
-}
-
-function prepareProcessArgs(sources, options) {
-  var preparedSources = prepareSources(sources);
-  var compilerArgs = compilerArgsFromOptions(options);
-
-  return ["make"].concat(preparedSources ? preparedSources.concat(compilerArgs) : compilerArgs);
-}
-
-function prepareProcessOpts(options) {
-  var env = _.merge({ LANG: 'en_US.UTF-8' }, process.env);
-  return _.merge({ env: env, stdio: "inherit", cwd: options.cwd }, options.processOpts);
-
 }
 
 function runCompiler(sources, options, pathToElm) {
@@ -168,6 +147,27 @@ function runCompiler(sources, options, pathToElm) {
 
   return options.spawn(pathToElm, processArgs, processOpts);
 }
+function prepareProcessArgs(sources, options) {
+  var preparedSources = prepareSources(sources);
+  var compilerArgs = compilerArgsFromOptions(options);
+
+  return ["make"].concat(preparedSources ? preparedSources.concat(compilerArgs) : compilerArgs);
+}
+
+function prepareSources(sources) {
+  if (!(sources instanceof Array || typeof sources === "string")) {
+    throw "compile() received neither an Array nor a String for its sources argument.";
+  }
+
+  return typeof sources === "string" ? [sources] : sources;
+}
+
+function prepareProcessOpts(options) {
+  var env = _.merge({ LANG: 'en_US.UTF-8' }, process.env);
+  return _.merge({ env: env, stdio: "inherit", cwd: options.cwd }, options.processOpts);
+
+}
+
 
 function compilerErrorToString(err: { code?: string, message?: string }, pathToElm: string): string {
   if ((typeof err === "object") && (typeof err.code === "string")) {
