@@ -129,7 +129,7 @@ var defaultOptions: Partial<Options> = {
 
 var supportedOptions = _.keys(defaultOptions);
 
-function prepareOptions(options, spawnFn) {
+function prepareOptions(options: Options, spawnFn: typeof spawn): Options {
   return _.defaults({ spawn: spawnFn }, options, defaultOptions);
 }
 
