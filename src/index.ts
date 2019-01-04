@@ -5,7 +5,7 @@ import * as path from "path";
 import * as temp from "temp";
 import { findAllDependencies } from "find-elm-dependencies";
 
-import { SpawnOptions } from "child_process";
+import { SpawnOptions, ChildProcess } from "child_process";
 
 var elmBinaryName = "elm";
 
@@ -163,13 +163,7 @@ function prepareSources(sources: any): string[] {
   return typeof sources === "string" ? [sources] : sources;
 }
 
-type ProcessOptions = {
-  env: { [key: string]: string },
-  stdio: string,
-  cwd: string,
-}
-
-function prepareProcessOpts(options: Options): ProcessOptions {
+function prepareProcessOpts(options: Options): SpawnOptions {
   var env = _.merge({ LANG: 'en_US.UTF-8' }, process.env);
   return _.merge({ env: env, stdio: "inherit", cwd: options.cwd }, options.processOpts);
 
