@@ -60,7 +60,7 @@ module.exports = function (compile) {
   };
 };
 
-function createTmpDir() {
+function createTmpDir(): Promise<string> {
   return new Promise(function (resolve, reject) {
     temp.mkdir("node-elm-compiler", function (err, tmpDirPath) {
       if (err) {
