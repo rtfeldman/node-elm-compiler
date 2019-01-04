@@ -147,6 +147,7 @@ function runCompiler(sources, options, pathToElm) {
 
   return options.spawn(pathToElm, processArgs, processOpts);
 }
+
 function prepareProcessArgs(sources, options) {
   var preparedSources = prepareSources(sources);
   var compilerArgs = compilerArgsFromOptions(options);
@@ -162,12 +163,17 @@ function prepareSources(sources) {
   return typeof sources === "string" ? [sources] : sources;
 }
 
-function prepareProcessOpts(options) {
+type ProcessOptions = {
+  env: { [key: string]: string },
+  stdio: string,
+  cwd: string,
+}
+
+function prepareProcessOpts(options: Options): ProcessOptions {
   var env = _.merge({ LANG: 'en_US.UTF-8' }, process.env);
   return _.merge({ env: env, stdio: "inherit", cwd: options.cwd }, options.processOpts);
 
 }
-
 
 function compilerErrorToString(err: { code?: string, message?: string }, pathToElm: string): string {
   if ((typeof err === "object") && (typeof err.code === "string")) {
