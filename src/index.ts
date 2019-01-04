@@ -95,8 +95,24 @@ function compileToStringSync(sources, options) {
   return fs.readFileSync(file.path, { encoding: "utf8" });
 }
 
-var defaultOptions = {
+type Options = {
+  spawn: typeof spawn,
+  runtimeOptions: string[],
+  cwd: string,
+  pathToElm: string,
+  help: boolean,
+  output: string,
+  report: string,
+  debug: boolean,
+  verbose: boolean,
+  processOpts: SpawnOptions,
+  docs: string,
+  optimize: boolean,
+}
+
+var defaultOptions: Partial<Options> = {
   spawn: spawn,
+  runtimeOptions: undefined,
   cwd: undefined,
   pathToElm: undefined,
   help: undefined,
