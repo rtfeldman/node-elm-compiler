@@ -9,7 +9,7 @@ var expect = chai.expect;
 
 var fixturesDir = path.join(__dirname, "fixtures");
 
-function prependFixturesDir(filename) {
+function prependFixturesDir(filename: string) {
   return path.join(fixturesDir, filename);
 }
 
@@ -24,7 +24,7 @@ describe("#compile", function () {
     };
     var compileProcess = compiler.compile(prependFixturesDir("Bad.elm"), opts);
 
-    compileProcess.on("exit", function (exitCode) {
+    compileProcess.on("exit", function (exitCode: number) {
       var desc = "Expected elm make to have exit code 1";
       expect(exitCode, desc).to.equal(1);
       done();
@@ -69,7 +69,7 @@ describe("#compileToString", function () {
     };
     var compilePromise = compiler.compileToString(prependFixturesDir("Bad.elm"), opts);
 
-    return compilePromise.catch(function (err) {
+    return compilePromise.catch(function (err: Error) {
       expect(err).to.be.an('error');
       expect(String(err))
         .to.contain("Compilation failed")
@@ -84,7 +84,7 @@ describe("#compileToString", function () {
     };
     var compilePromise = compiler.compileToString(prependFixturesDir("TypeError.elm"), opts);
 
-    return compilePromise.catch(function (err) {
+    return compilePromise.catch(function (err: Error) {
       expect(err).to.be.an('error');
       expect(String(err))
         .to.contain("Compilation failed")
@@ -120,7 +120,7 @@ describe("#compileToString", function () {
     var runCompile = function () {
       var compilePromise = compiler.compileToString(prependFixturesDir("Parent.elm"), opts)
 
-      return compilePromise.then(function (result) {
+      return compilePromise.then(function (result: string) {
         var desc = "Expected elm make to return the result of the compilation";
         expect(result.toString(), desc).to.be.a('string');
       });
@@ -144,7 +144,7 @@ describe("#compileToString", function () {
     };
 
     return compiler.compileToString(prependFixturesDir("Parent.elm"), opts)
-      .then(function (result) {
+      .then(function (result: string) {
         var desc = "Expected elm make to return the result of the compilation";
         expect(result.toString(), desc).to.be.a('string');
       });
@@ -166,8 +166,8 @@ describe("#compileWorker", function () {
       "BasicWorker"
     );
 
-    return compilePromise.then(function (app) {
-      app.ports.reportFromWorker.subscribe(function (str) {
+    return compilePromise.then(function (app: any) {
+      app.ports.reportFromWorker.subscribe(function (str: string) {
         expect(str).to.equal("it's alive!");
       });
     })
