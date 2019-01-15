@@ -187,7 +187,7 @@ function compilerErrorToString(err: { code?: string, message?: string }, pathToE
   }
 }
 
-function getSuffix(outputPath: string, defaultSuffix: string): string {
+function getSuffix(outputPath: string | undefined, defaultSuffix: string): string {
   if (outputPath) {
     return path.extname(outputPath) || defaultSuffix;
   } else {
