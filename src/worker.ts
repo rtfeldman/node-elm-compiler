@@ -37,8 +37,8 @@ var KNOWN_MODULES =
 type Compile = typeof compileFunc;
 
 // elmModuleName is optional, and is by default inferred based on the filename.
-module.exports = function (compile) {
-  return function (projectRootDir, modulePath, moduleName, workerArgs) {
+module.exports = function (compile: Compile) {
+  return function (projectRootDir: string, modulePath: string, moduleName: string, workerArgs: object) {
     var originalWorkingDir = process.cwd();
     process.chdir(projectRootDir);
 
@@ -104,7 +104,7 @@ function noPortsMessage(moduleName: string): string {
   return errorMessage.trim();
 }
 
-function runWorker(jsFilename: string, moduleName: string, workerArgs: string[]): Promise<ElmWorker> {
+function runWorker(jsFilename: string, moduleName: string, workerArgs: object): Promise<ElmWorker> {
   return new Promise(function (resolve, reject) {
     var Elm = require(jsFilename).Elm;
 
@@ -122,7 +122,7 @@ function runWorker(jsFilename: string, moduleName: string, workerArgs: string[])
   });
 }
 
-function compileEmitter(compile: Compile, src: string, options: Options): Promise<number> {
+function compileEmitter(compile: Compile, src: string, options: Partial<Options>): Promise<number> {
   return new Promise(function (resolve, reject) {
     compile(src, options)
       .on("close", function (exitCode) {
