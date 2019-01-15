@@ -12,8 +12,8 @@ var elmBinaryName = "elm";
 temp.track();
 
 
-export function compile(sources: string | string[], options: Options): ChildProcess {
-  var optionsWithDefaults = prepareOptions(options, options.spawn || spawn);
+export function compile(sources: string | string[], options: Partial<Options>): ChildProcess {
+  var optionsWithDefaults = prepareOptions(options, spawn);
   var pathToElm = options.pathToElm || elmBinaryName;
 
   try {
@@ -24,8 +24,8 @@ export function compile(sources: string | string[], options: Options): ChildProc
   }
 }
 
-function compileSync(sources: string | string[], options: Options): ChildProcess {
-  var optionsWithDefaults = prepareOptions(options, options.spawn || spawn.sync);
+function compileSync(sources: string | string[], options: Partial<Options>): ChildProcess {
+  var optionsWithDefaults = prepareOptions(options, spawn.sync as any);
   var pathToElm = options.pathToElm || elmBinaryName;
 
   try {
@@ -40,7 +40,7 @@ function compileSync(sources: string | string[], options: Options): ChildProcess
 // If you want html instead of js, use options object to set
 // output to a html file instead
 // creates a temp file and deletes it after reading
-function compileToString(sources: string | string[], options: Options): Promise<string> {
+function compileToString(sources: string | string[], options: Partial<Options>): Promise<string> {
   const suffix = getSuffix(options.output, '.js');
 
   return new Promise(function (resolve, reject) {
@@ -98,20 +98,20 @@ function compileToStringSync(sources: string | string[], options: Options): stri
 
 export type Options = {
   spawn: typeof spawn,
-  runtimeOptions: string[],
-  cwd: string,
-  pathToElm: string,
-  help: boolean,
-  output: string,
-  report: string,
-  debug: boolean,
-  verbose: boolean,
-  processOpts: SpawnOptions,
-  docs: string,
-  optimize: boolean,
+  runtimeOptions?: string[],
+  cwd?: string,
+  pathToElm?: string,
+  help?: boolean,
+  output?: string,
+  report?: string,
+  debug?: boolean,
+  verbose?: boolean,
+  processOpts?: SpawnOptions,
+  docs?: string,
+  optimize?: boolean,
 }
 
-var defaultOptions: Partial<Options> = {
+var defaultOptions: Options = {
   spawn: spawn,
   runtimeOptions: undefined,
   cwd: undefined,
@@ -128,7 +128,7 @@ var defaultOptions: Partial<Options> = {
 
 var supportedOptions = _.keys(defaultOptions);
 
-function prepareOptions(options: Options, spawnFn: typeof spawn): Options {
+function prepareOptions(options: Partial<Options>, spawnFn: typeof spawn): Options {
   return _.defaults({ spawn: spawnFn }, options, defaultOptions);
 }
 
