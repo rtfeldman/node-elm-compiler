@@ -12,6 +12,10 @@ $ node compileHelloWorld.js
 
 # Releases
 
+## 5.0.2
+
+Upgrade lodash dependency to fix security audit warning. ([#93](https://github.com/rtfeldman/node-elm-compiler/pull/93))
+
 ## 5.0.1
 
 Add helpful errors if you use the obsolete `warn` and `pathToMake` flags. ([#75](https://github.com/rtfeldman/node-elm-compiler/pull/75))
