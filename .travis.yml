@@ -6,10 +6,8 @@ os:
 
 env:
   matrix:
-    - ELM_VERSION=0.19.0-bugfix2 TARGET_NODE_VERSION=4.0
-    - ELM_VERSION=0.19.0-bugfix2 TARGET_NODE_VERSION=6.0
     - ELM_VERSION=0.19.0-bugfix2 TARGET_NODE_VERSION=8.0
-    - ELM_VERSION=0.19.0-bugfix2 TARGET_NODE_VERSION=node
+    - ELM_VERSION=0.19.0-bugfix2 TARGET_NODE_VERSION=10.0
 
 before_install:
   - rm -rf ~/.elm
