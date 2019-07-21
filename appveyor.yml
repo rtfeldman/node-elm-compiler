@@ -1,5 +1,5 @@
 environment:
-  ELM_VERSION: "0.19.0-bugfix2"
+  ELM_VERSION: "0.19.0-no-deps"
   matrix:
   - nodejs_version: "12.0"
   - nodejs_version: "10.0"
