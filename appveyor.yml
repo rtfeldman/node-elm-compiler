@@ -6,7 +6,6 @@ environment:
   - nodejs_version: "8.0"
 
 platform:
-  - x86
   - x64
 
 matrix:
