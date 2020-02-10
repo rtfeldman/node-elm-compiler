@@ -130,7 +130,7 @@ function compileToString(sources, options) {
       }
 
       options.output = info.path;
-      options.processOpts = { stdio: 'pipe' }
+      options.processOpts = { stdio: 'inherit' }
 
       var compiler;
 
@@ -140,22 +140,9 @@ function compileToString(sources, options) {
         return reject(compileError);
       }
 
-      compiler.stdout.setEncoding("utf8");
-      compiler.stderr.setEncoding("utf8");
-
-      var output = '';
-      compiler.stdout.on('data', function (chunk) {
-        output += chunk;
-      });
-      compiler.stderr.on('data', function (chunk) {
-        output += chunk;
-      });
-
       compiler.on("close", function (exitCode) {
         if (exitCode !== 0) {
-          return reject(new Error('Compilation failed\n' + output));
-        } else if (options.verbose) {
-          console.log(output);
+          return reject('Compilation failed');
         }
 
         fs.readFile(info.path, { encoding: "utf8" }, function (err, data) {
