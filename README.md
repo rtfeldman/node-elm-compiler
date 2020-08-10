@@ -12,6 +12,10 @@ $ node compileHelloWorld.js
 
 # Releases
 
+## Unreleased
+
+Upgrade find-elm-dependencies and lodash dependencies to fix CVE-2020-8203 vulnerability.
+
 ## 5.0.2
 
 Upgrade lodash dependency to fix security audit warning. ([#93](https://github.com/rtfeldman/node-elm-compiler/pull/93))
