@@ -29,7 +29,7 @@
   "dependencies": {
     "cross-spawn": "6.0.5",
     "find-elm-dependencies": "2.0.2",
-    "lodash": "4.17.15",
+    "lodash": "4.17.20",
     "temp": "^0.9.0"
   },
   "devDependencies": {
