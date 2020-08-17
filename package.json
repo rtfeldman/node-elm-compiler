@@ -1,6 +1,6 @@
 {
   "name": "node-elm-compiler",
-  "version": "5.0.4",
+  "version": "5.0.5",
   "description": "A Node.js interface to the Elm compiler binaries.",
   "main": "dist/index.js",
   "scripts": {
