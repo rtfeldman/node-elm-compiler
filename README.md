@@ -12,7 +12,7 @@ $ node compileHelloWorld.js
 
 # Releases
 
-## Unreleased
+## 5.0.5
 
 Upgrade find-elm-dependencies and lodash dependencies to fix CVE-2020-8203 vulnerability.
 
