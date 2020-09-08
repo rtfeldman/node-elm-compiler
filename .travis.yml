@@ -1,25 +1,23 @@
 sudo: false
 
+language: node_js
+node_js:
+  - "8"
+  - "10"
+  - "12"
+
 os:
   - linux
   - osx
 
 env:
   matrix:
-    - ELM_VERSION=0.19.0-bugfix2 TARGET_NODE_VERSION=4.0
-    - ELM_VERSION=0.19.0-bugfix2 TARGET_NODE_VERSION=6.0
-    - ELM_VERSION=0.19.0-bugfix2 TARGET_NODE_VERSION=8.0
-    - ELM_VERSION=0.19.0-bugfix2 TARGET_NODE_VERSION=node
+    - ELM_VERSION=0.19.0-no-deps
 
 before_install:
   - rm -rf ~/.elm
-  - if [ ${TRAVIS_OS_NAME} == "osx" ];
-    then brew update; brew install nvm; mkdir ~/.nvm; export NVM_DIR=~/.nvm; source $(brew --prefix nvm)/nvm.sh;
-    fi
 
 install:
-  - nvm install $TARGET_NODE_VERSION
-  - nvm use $TARGET_NODE_VERSION
   - node --version
   - npm --version
   - npm install -g elm@$ELM_VERSION

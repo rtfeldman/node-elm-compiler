@@ -1,12 +1,11 @@
 environment:
-  ELM_VERSION: "0.19.0-bugfix2"
+  ELM_VERSION: "0.19.0-bugfix6"
   matrix:
+  - nodejs_version: "12.0"
+  - nodejs_version: "10.0"
   - nodejs_version: "8.0"
-  - nodejs_version: "6.0"
-  - nodejs_version: "4.0"
 
 platform:
-  - x86
   - x64
 
 matrix:
