@@ -73,7 +73,7 @@ describe("#compileToString", function () {
       expect(err).to.be.an('error');
       expect(String(err))
         .to.contain("Compilation failed")
-        .and.contain("PARSE ERROR");
+        .and.contain("MISSING EXPRESSION");
     });
   });
 
