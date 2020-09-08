@@ -1,5 +1,5 @@
-var compile = require("../index.js").compile;
-var compileToString = require("../index.js").compileToString;
+var compile = require("../dist/index.js").compile;
+var compileToString = require("../dist/index.js").compileToString;
 
 compile(["./Main.elm"], {
   output: "compiled-hello-world.js"
