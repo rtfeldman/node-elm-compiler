@@ -6,6 +6,7 @@ Wraps [Elm](https://elm-lang.org) and exposes a [Node](https://nodejs.org) API t
 
 ```bash
 $ npm install
+$ npm run build
 $ cd examples
 $ node compileHelloWorld.js
 ```
