@@ -2,9 +2,9 @@ var chai = require("chai")
 var path = require("path");
 var compiler = require(path.join(__dirname, "../src"));
 
-var expect = chai.expect;
+const expect = chai.expect;
 
-var fixturesDir = path.join(__dirname, "fixtures");
+const fixturesDir = path.join(__dirname, "fixtures");
 
 function prependFixturesDir(filename) {
   return path.join(fixturesDir, filename);
@@ -15,31 +15,31 @@ describe("#compileSync", function () {
   this.timeout(300000);
 
   it("succeeds on SimplestMain", function () {
-    var opts = {
+    const opts = {
       verbose: true,
       cwd: fixturesDir
     };
-    var compileProcess = compiler.compileSync(prependFixturesDir("SimplestMain.elm"), opts);
+    const compileProcess = compiler.compileSync(prependFixturesDir("SimplestMain.elm"), opts);
 
-    var exitCode = compileProcess.status;
-    var desc = "Expected elm make to have exit code 0";
+    const exitCode = compileProcess.status;
+    const desc = "Expected elm make to have exit code 0";
     expect(exitCode, desc).to.equal(0);
   });
 
   it("reports errors on bad source", function () {
-    var opts = {
+    const opts = {
       verbose: true,
       cwd: fixturesDir
     };
-    var compileProcess = compiler.compileSync(prependFixturesDir("Bad.elm"), opts);
+    const compileProcess = compiler.compileSync(prependFixturesDir("Bad.elm"), opts);
 
-    var exitCode = compileProcess.status;
-    var desc = "Expected elm make to have exit code 1";
+    const exitCode = compileProcess.status;
+    const desc = "Expected elm make to have exit code 1";
     expect(exitCode, desc).to.equal(1);
   });
 
   it("throws when given an unrecognized argument like `yes`", function () {
-    var opts = {
+    const opts = {
       yes: true,
       output: "/dev/null",
       verbose: true,
@@ -47,7 +47,7 @@ describe("#compileSync", function () {
     };
 
     expect(function () {
-      var compileProcess = compiler.compileSync(prependFixturesDir("Parent.elm"), opts);
+      const compileProcess = compiler.compileSync(prependFixturesDir("Parent.elm"), opts);
     }).to.throw();
   });
 });

@@ -7,14 +7,13 @@ import { findAllDependencies } from "find-elm-dependencies";
 
 import { SpawnOptions, ChildProcess } from "child_process";
 
-var elmBinaryName = "elm";
+const elmBinaryName = "elm";
 
 temp.track();
 
-
 export function compile(sources: string | string[], options: Partial<Options>): ChildProcess {
-  var optionsWithDefaults = prepareOptions(options, spawn);
-  var pathToElm = options.pathToElm || elmBinaryName;
+  const optionsWithDefaults = prepareOptions(options, spawn);
+  const pathToElm = options.pathToElm || elmBinaryName;
 
   try {
     return runCompiler(sources, optionsWithDefaults, pathToElm)
@@ -25,8 +24,8 @@ export function compile(sources: string | string[], options: Partial<Options>): 
 }
 
 function compileSync(sources: string | string[], options: Partial<Options>): ChildProcess {
-  var optionsWithDefaults = prepareOptions(options, spawn.sync as any);
-  var pathToElm = options.pathToElm || elmBinaryName;
+  const optionsWithDefaults = prepareOptions(options, spawn.sync as any);
+  const pathToElm = options.pathToElm || elmBinaryName;
 
   try {
     return runCompiler(sources, optionsWithDefaults, pathToElm);
@@ -52,7 +51,7 @@ function compileToString(sources: string | string[], options: Partial<Options>):
       options.output = info.path;
       options.processOpts = { stdio: 'pipe' }
 
-      var compiler;
+      let compiler;
 
       try {
         compiler = compile(sources, options);
@@ -63,7 +62,7 @@ function compileToString(sources: string | string[], options: Partial<Options>):
       compiler.stdout.setEncoding("utf8");
       compiler.stderr.setEncoding("utf8");
 
-      var output = '';
+      let output = '';
       compiler.stdout.on('data', function (chunk) {
         output += chunk;
       });
@@ -111,7 +110,7 @@ export type Options = {
   optimize?: boolean,
 }
 
-var defaultOptions: Options = {
+const defaultOptions: Options = {
   spawn: spawn,
   runtimeOptions: undefined,
   cwd: undefined,
@@ -126,7 +125,7 @@ var defaultOptions: Options = {
   optimize: undefined,
 };
 
-var supportedOptions = _.keys(defaultOptions);
+const supportedOptions = _.keys(defaultOptions);
 
 function prepareOptions(options: Partial<Options>, spawnFn: typeof spawn): Options {
   return _.defaults({ spawn: spawnFn }, options, defaultOptions);
@@ -137,8 +136,8 @@ function runCompiler(sources: string | string[], options: Options, pathToElm: st
     throw "options.spawn was a(n) " + (typeof options.spawn) + " instead of a function.";
   }
 
-  var processArgs = prepareProcessArgs(sources, options);
-  var processOpts = prepareProcessOpts(options);
+  const processArgs = prepareProcessArgs(sources, options);
+  const processOpts = prepareProcessOpts(options);
 
   if (options.verbose) {
     console.log(["Running", pathToElm].concat(processArgs).join(" "));
@@ -148,8 +147,8 @@ function runCompiler(sources: string | string[], options: Options, pathToElm: st
 }
 
 function prepareProcessArgs(sources: string | string[], options: Options): string[] {
-  var preparedSources = prepareSources(sources);
-  var compilerArgs = compilerArgsFromOptions(options);
+  const preparedSources = prepareSources(sources);
+  const compilerArgs = compilerArgsFromOptions(options);
 
   return ["make"].concat(preparedSources ? preparedSources.concat(compilerArgs) : compilerArgs);
 }
@@ -163,7 +162,7 @@ function prepareSources(sources: string | string[]): string[] {
 }
 
 function prepareProcessOpts(options: Options): SpawnOptions {
-  var env = _.merge({ LANG: 'en_US.UTF-8' }, process.env);
+  const env = _.merge({ LANG: 'en_US.UTF-8' }, process.env);
   return _.merge({ env: env, stdio: "inherit", cwd: options.cwd }, options.processOpts);
 
 }

@@ -5,9 +5,9 @@ import { compile as compileFunc, Options } from './index';
 
 temp.track();
 
-var jsEmitterFilename = "emitter.js";
+const jsEmitterFilename = "emitter.js";
 
-var KNOWN_MODULES =
+const KNOWN_MODULES =
   [
     "fullscreen",
     "embed",
@@ -39,12 +39,12 @@ type Compile = typeof compileFunc;
 // elmModuleName is optional, and is by default inferred based on the filename.
 module.exports = function (compile: Compile) {
   return function (projectRootDir: string, modulePath: string, moduleName: string, workerArgs: object) {
-    var originalWorkingDir = process.cwd();
+    const originalWorkingDir = process.cwd();
     process.chdir(projectRootDir);
 
     return createTmpDir()
       .then(function (tmpDirPath: string) {
-        var dest = path.join(tmpDirPath, jsEmitterFilename);
+        const dest = path.join(tmpDirPath, jsEmitterFilename);
 
         return compileEmitter(compile, modulePath, { output: dest })
           .then(function () { return runWorker(dest, moduleName, workerArgs) });
@@ -81,8 +81,8 @@ function suggestModulesNames(Elm: ElmWorker): string[] {
 }
 
 function missingEntryModuleMessage(moduleName: string, Elm: ElmWorker): string {
-  var errorMessage = "I couldn't find the entry module " + moduleName + ".\n";
-  var suggestions = suggestModulesNames(Elm);
+  let errorMessage = "I couldn't find the entry module " + moduleName + ".\n";
+  const suggestions = suggestModulesNames(Elm);
 
   if (suggestions.length > 1) {
     errorMessage += "\nMaybe you meant one of these: " + suggestions.join(",");
@@ -96,7 +96,7 @@ function missingEntryModuleMessage(moduleName: string, Elm: ElmWorker): string {
 }
 
 function noPortsMessage(moduleName: string): string {
-  var errorMessage = "The module " + moduleName + " doesn't expose any ports!\n";
+  let errorMessage = "The module " + moduleName + " doesn't expose any ports!\n";
 
   errorMessage += "\n\nTry adding something like";
   errorMessage += "port foo : Value\nport foo =\n    someValue\n\nto " + moduleName + "!";
@@ -106,13 +106,13 @@ function noPortsMessage(moduleName: string): string {
 
 function runWorker(jsFilename: string, moduleName: string, workerArgs: object): Promise<ElmWorker> {
   return new Promise(function (resolve, reject) {
-    var Elm = require(jsFilename).Elm;
+    const Elm = require(jsFilename).Elm;
 
     if (!(moduleName in Elm)) {
       return reject(missingEntryModuleMessage(moduleName, Elm));
     }
 
-    var worker = Elm[moduleName].init(workerArgs);
+    const worker = Elm[moduleName].init(workerArgs);
 
     if (Object.keys(worker.ports).length === 0) {
       return reject(noPortsMessage(moduleName));
