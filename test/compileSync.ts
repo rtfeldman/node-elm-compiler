@@ -1,6 +1,7 @@
-var chai = require("chai")
-var path = require("path");
-var compiler = require(path.join(__dirname, "../src"));
+import * as chai from "chai";
+import * as path from "path";
+
+import * as compiler from "../src";
 
 const expect = chai.expect;
 
@@ -19,7 +20,7 @@ describe("#compileSync", function () {
       verbose: true,
       cwd: fixturesDir
     };
-    const compileProcess = compiler.compileSync(prependFixturesDir("SimplestMain.elm"), opts);
+    const compileProcess = compiler.compileSync(prependFixturesDir("SimplestMain.elm"), opts) as any;
 
     const exitCode = compileProcess.status;
     const desc = "Expected elm make to have exit code 0";
@@ -31,7 +32,7 @@ describe("#compileSync", function () {
       verbose: true,
       cwd: fixturesDir
     };
-    const compileProcess = compiler.compileSync(prependFixturesDir("Bad.elm"), opts);
+    const compileProcess = compiler.compileSync(prependFixturesDir("Bad.elm"), opts) as any;
 
     const exitCode = compileProcess.status;
     const desc = "Expected elm make to have exit code 1";

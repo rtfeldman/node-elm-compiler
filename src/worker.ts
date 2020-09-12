@@ -37,7 +37,7 @@ const KNOWN_MODULES =
 type Compile = typeof compileFunc;
 
 // elmModuleName is optional, and is by default inferred based on the filename.
-module.exports = function (compile: Compile) {
+export default function (compile: Compile) {
   return function (projectRootDir: string, modulePath: string, moduleName: string, workerArgs: object) {
     const originalWorkingDir = process.cwd();
     process.chdir(projectRootDir);

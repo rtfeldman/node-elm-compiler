@@ -1,9 +1,10 @@
-var chai = require("chai")
-var path = require("path");
-var compiler = require(path.join(__dirname, "../src"));
-var childProcess = require("child_process");
-var _ = require("lodash");
-var temp = require("temp");
+import * as chai from "chai";
+import * as path from "path";
+import * as childProcess from "child_process";
+import * as _ from "lodash";
+import * as temp from "temp";
+
+import * as compiler from "../src"
 
 const expect = chai.expect;
 
@@ -55,7 +56,7 @@ describe("#compileToString", function () {
       verbose: true,
       cwd: fixturesDir,
       runtimeOptions: ["-A128M", "-H128M", "-n8m"]
-    };
+    } as any;
 
     return expect(compiler
       ._prepareProcessArgs("a.elm", opts)
@@ -163,7 +164,8 @@ describe("#compileWorker", function () {
     const compilePromise = compiler.compileWorker(
       prependFixturesDir(""),
       prependFixturesDir("BasicWorker.elm"),
-      "BasicWorker"
+      "BasicWorker",
+      {}
     );
 
     return compilePromise.then(function (app: any) {

@@ -1,11 +1,14 @@
 import * as spawn from "cross-spawn";
 import * as _ from "lodash"
+import { SpawnOptions, ChildProcess } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
 import * as temp from "temp";
-import { findAllDependencies } from "find-elm-dependencies";
 
-import { SpawnOptions, ChildProcess } from "child_process";
+import compileWorkerBuilder from "./worker";
+
+
+export { findAllDependencies } from "find-elm-dependencies";
 
 const elmBinaryName = "elm";
 
@@ -23,7 +26,7 @@ export function compile(sources: string | string[], options: Partial<Options>): 
   }
 }
 
-function compileSync(sources: string | string[], options: Partial<Options>): ChildProcess {
+export function compileSync(sources: string | string[], options: Partial<Options>): ChildProcess {
   const optionsWithDefaults = prepareOptions(options, spawn.sync as any);
   const pathToElm = options.pathToElm || elmBinaryName;
 
@@ -39,7 +42,7 @@ function compileSync(sources: string | string[], options: Partial<Options>): Chi
 // If you want html instead of js, use options object to set
 // output to a html file instead
 // creates a temp file and deletes it after reading
-function compileToString(sources: string | string[], options: Partial<Options>): Promise<string> {
+export function compileToString(sources: string | string[], options: Partial<Options>): Promise<string> {
   const suffix = getSuffix(options.output, '.js');
 
   return new Promise(function (resolve, reject) {
@@ -85,7 +88,7 @@ function compileToString(sources: string | string[], options: Partial<Options>):
   });
 }
 
-function compileToStringSync(sources: string | string[], options: Options): string {
+export function compileToStringSync(sources: string | string[], options: Options): string {
   const suffix = getSuffix(options.output, '.js');
 
   const file = temp.openSync({ suffix });
@@ -228,12 +231,5 @@ function compilerArgsFromOptions(options: Options): string[] {
   }));
 }
 
-module.exports = {
-  compile: compile,
-  compileSync: compileSync,
-  compileWorker: require("./worker")(compile),
-  compileToString: compileToString,
-  compileToStringSync: compileToStringSync,
-  findAllDependencies: findAllDependencies,
-  _prepareProcessArgs: prepareProcessArgs
-};
+export const compileWorker = compileWorkerBuilder(compile);
+export const _prepareProcessArgs = prepareProcessArgs;

@@ -1,6 +1,7 @@
-var chai = require("chai");
-var path = require("path");
-var compiler = require(path.join(__dirname, "../src"));
+import * as chai from "chai";
+import * as path from "path";
+
+import * as compiler from "../src";
 
 var expect = chai.expect;
 
@@ -12,7 +13,7 @@ function prependFixturesDir(filename) {
 
 describe("#compileToStringSync", function () {
   it('returns string JS output of the given elm file', function () {
-    const opts = { verbose: true, cwd: fixturesDir };
+    const opts = { verbose: true, cwd: fixturesDir } as any;
     const result = compiler.compileToStringSync(prependFixturesDir("Parent.elm"), opts);
 
     expect(result).to.include("_Platform_export");
@@ -23,7 +24,7 @@ describe("#compileToStringSync", function () {
       verbose: true,
       cwd: fixturesDir,
       output: prependFixturesDir('compiled.html'),
-    };
+    } as any;
     const result = compiler.compileToStringSync(prependFixturesDir("Parent.elm"), opts);
 
     expect(result).to.include('<!DOCTYPE HTML>');
