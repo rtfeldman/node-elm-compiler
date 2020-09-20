@@ -5,35 +5,35 @@ import * as fs from "fs";
 import * as path from "path";
 import * as temp from "temp";
 
+import { processOptions, ProcessedOptions } from "./options"
 import compileWorkerBuilder from "./worker";
 
-
 export { findAllDependencies } from "find-elm-dependencies";
-
-const elmBinaryName = "elm";
 
 temp.track();
 
 export function compile(sources: string | string[], options: Partial<Options>): ChildProcess {
+  const processedOptions = processOptions(options);
+
   const optionsWithDefaults = prepareOptions(options, spawn);
-  const pathToElm = options.pathToElm || elmBinaryName;
 
   try {
-    return runCompiler(sources, optionsWithDefaults, pathToElm)
+    return runCompiler(sources, optionsWithDefaults, processedOptions)
       .on('error', function (err) { throw (err); });
   } catch (err) {
-    throw compilerErrorToString(err, pathToElm);
+    throw new Error(compilerErrorToString(err, processedOptions.pathToElm));
   }
 }
 
 export function compileSync(sources: string | string[], options: Partial<Options>): ChildProcess {
+  const processedOptions = processOptions(options);
+
   const optionsWithDefaults = prepareOptions(options, spawn.sync as any);
-  const pathToElm = options.pathToElm || elmBinaryName;
 
   try {
-    return runCompiler(sources, optionsWithDefaults, pathToElm);
+    return runCompiler(sources, optionsWithDefaults, processedOptions);
   } catch (err) {
-    throw compilerErrorToString(err, pathToElm);
+    throw new Error(compilerErrorToString(err, processedOptions.pathToElm));
   }
 }
 
@@ -134,19 +134,18 @@ function prepareOptions(options: Partial<Options>, spawnFn: typeof spawn): Optio
   return _.defaults({ spawn: spawnFn }, options, defaultOptions);
 }
 
-function runCompiler(sources: string | string[], options: Options, pathToElm: string): ChildProcess {
+function runCompiler(sources: string | string[], options: Options, processedOptions: ProcessedOptions): ChildProcess {
   if (typeof options.spawn !== "function") {
     throw "options.spawn was a(n) " + (typeof options.spawn) + " instead of a function.";
   }
 
   const processArgs = prepareProcessArgs(sources, options);
-  const processOpts = prepareProcessOpts(options);
 
   if (options.verbose) {
-    console.log(["Running", pathToElm].concat(processArgs).join(" "));
+    console.log(["Running", processedOptions.pathToElm].concat(processArgs).join(" "));
   }
 
-  return options.spawn(pathToElm, processArgs, processOpts);
+  return options.spawn(processedOptions.pathToElm, processArgs, processedOptions.processOpts);
 }
 
 function prepareProcessArgs(sources: string | string[], options: Options): string[] {
@@ -162,12 +161,6 @@ function prepareSources(sources: string | string[]): string[] {
   }
 
   return typeof sources === "string" ? [sources] : sources;
-}
-
-function prepareProcessOpts(options: Options): SpawnOptions {
-  const env = _.merge({ LANG: 'en_US.UTF-8' }, process.env);
-  return _.merge({ env: env, stdio: "inherit", cwd: options.cwd }, options.processOpts);
-
 }
 
 function compilerErrorToString(err: { code?: string, message?: string }, pathToElm: string): string {
