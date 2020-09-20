@@ -1,6 +1,6 @@
 import * as spawn from "cross-spawn";
 import * as _ from "lodash"
-import { ChildProcess, spawnSync, SpawnSyncReturns } from "child_process";
+import { ChildProcess, SpawnSyncReturns } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
 import * as temp from "temp";
@@ -34,7 +34,7 @@ export function compileSync(sources: string | string[], options: Options): Spawn
 
   try {
     logCommand(processed);
-    return spawnSync(processed.command, processed.args, processed.options)
+    return spawn.sync(processed.command, processed.args, processed.options)
   } catch (err) {
     throw new Error(compilerErrorToString(err, processed.command));
   }
