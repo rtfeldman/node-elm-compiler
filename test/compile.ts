@@ -1,8 +1,6 @@
 import * as chai from "chai";
 import * as path from "path";
-import * as childProcess from "child_process";
 import * as _ from "lodash";
-import * as temp from "temp";
 
 import * as compiler from "../src"
 
@@ -31,37 +29,11 @@ describe("#compile", function () {
       done();
     });
   });
-
-  it("throws when given an unrecognized argument", function () {
-    const opts = {
-      foo: "bar",
-      output: "/dev/null",
-      verbose: true,
-      cwd: fixturesDir
-    };
-
-    expect(function () {
-      const compileProcess = compiler.compile(prependFixturesDir("Parent.elm"), opts);
-
-    }).to.throw();
-  });
 });
 
 describe("#compileToString", function () {
   // Use an epic timeout because Travis on Linux can be SUPER slow.
   this.timeout(600000);
-
-  it("adds runtime options as arguments", function () {
-    const opts = {
-      verbose: true,
-      cwd: fixturesDir,
-      runtimeOptions: ["-A128M", "-H128M", "-n8m"]
-    } as any;
-
-    return expect(compiler
-      ._prepareProcessArgs("a.elm", opts)
-      .join(" ")).to.equal("make a.elm +RTS -A128M -H128M -n8m -RTS");
-  });
 
   it("reports errors on bad syntax", function () {
     const opts = {
@@ -92,25 +64,6 @@ describe("#compileToString", function () {
         .and.contain("TYPE MISMATCH");
     });
   });
-
-  it("Rejects the Promise when given an unrecognized argument like `yes`", function () {
-    const opts = {
-      foo: "bar",
-      verbose: true,
-      cwd: fixturesDir
-    };
-
-    const compilePromise = compiler.compileToString(prependFixturesDir("Parent.elm"), opts);
-
-    return new Promise(function (resolve, reject) {
-      return compilePromise.then(function () {
-        reject("Expected the compilation promise to be rejected due to the unrecognized compiler argument.");
-      }).catch(function () {
-        resolve();
-      });
-    });
-  });
-
 
   it("works when run multiple times", function () {
     const opts = {
@@ -149,6 +102,57 @@ describe("#compileToString", function () {
         const desc = "Expected elm make to return the result of the compilation";
         expect(result.toString(), desc).to.be.a('string');
       });
+  });
+});
+
+describe("#compileSync", function () {
+  // Use a timeout of 5 minutes because Travis on Linux can be SUPER slow.
+  this.timeout(300000);
+
+  it("succeeds on SimplestMain", function () {
+    const opts = {
+      verbose: true,
+      cwd: fixturesDir
+    };
+    const compileProcess = compiler.compileSync(prependFixturesDir("SimplestMain.elm"), opts) as any;
+
+    const exitCode = compileProcess.status;
+    const desc = "Expected elm make to have exit code 0";
+    expect(exitCode, desc).to.equal(0);
+  });
+
+  it("reports errors on bad source", function () {
+    const opts = {
+      verbose: true,
+      cwd: fixturesDir
+    };
+    const compileProcess = compiler.compileSync(prependFixturesDir("Bad.elm"), opts) as any;
+
+    const exitCode = compileProcess.status;
+    const desc = "Expected elm make to have exit code 1";
+    expect(exitCode, desc).to.equal(1);
+  });
+});
+
+describe("#compileToStringSync", function () {
+  it('returns string JS output of the given elm file', function () {
+    const opts = { verbose: true, cwd: fixturesDir };
+    const result = compiler.compileToStringSync(prependFixturesDir("Parent.elm"), opts);
+
+    expect(result).to.include("_Platform_export");
+  });
+
+  it('returns html output given "html" output option', function () {
+    const opts = {
+      verbose: true,
+      cwd: fixturesDir,
+      output: prependFixturesDir('compiled.html'),
+    };
+    const result = compiler.compileToStringSync(prependFixturesDir("Parent.elm"), opts);
+
+    expect(result).to.include('<!DOCTYPE HTML>');
+    expect(result).to.include('<title>Parent</title>');
+    expect(result).to.include("_Platform_export");
   });
 });
 

@@ -1,48 +1,52 @@
 import * as spawn from "cross-spawn";
 import * as _ from "lodash"
-import { SpawnOptions, ChildProcess } from "child_process";
+import { ChildProcess, spawnSync, SpawnSyncReturns } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
 import * as temp from "temp";
 
-import { processOptions, ProcessedOptions } from "./options"
+import { processOptions, ProcessedOptions, Options } from "./options"
 import compileWorkerBuilder from "./worker";
 
+// Let's ignore that the following dependency does not have types.
+//@ts-ignore
 export { findAllDependencies } from "find-elm-dependencies";
+
+export const compileWorker = compileWorkerBuilder(compile);
+export { processOptions, ProcessedOptions, Options };
 
 temp.track();
 
-export function compile(sources: string | string[], options: Partial<Options>): ChildProcess {
-  const processedOptions = processOptions(options);
-
-  const optionsWithDefaults = prepareOptions(options, spawn);
+export function compile(sources: string | string[], rawOptions: Options): ChildProcess {
+  const processed = processOptions(sources, rawOptions);
 
   try {
-    return runCompiler(sources, optionsWithDefaults, processedOptions)
+    logCommand(processed);
+    return spawn(processed.command, processed.args, processed.options)
       .on('error', function (err) { throw (err); });
   } catch (err) {
-    throw new Error(compilerErrorToString(err, processedOptions.pathToElm));
+    throw new Error(compilerErrorToString(err, processed.command));
   }
 }
 
-export function compileSync(sources: string | string[], options: Partial<Options>): ChildProcess {
-  const processedOptions = processOptions(options);
-
-  const optionsWithDefaults = prepareOptions(options, spawn.sync as any);
+export function compileSync(sources: string | string[], options: Options): SpawnSyncReturns<Buffer> {
+  const processed = processOptions(sources, options);
 
   try {
-    return runCompiler(sources, optionsWithDefaults, processedOptions);
+    logCommand(processed);
+    return spawnSync(processed.command, processed.args, processed.options)
   } catch (err) {
-    throw new Error(compilerErrorToString(err, processedOptions.pathToElm));
+    throw new Error(compilerErrorToString(err, processed.command));
   }
 }
 
-// write compiled Elm to a string output
-// returns a Promise which will contain a Buffer of the text
-// If you want html instead of js, use options object to set
-// output to a html file instead
-// creates a temp file and deletes it after reading
-export function compileToString(sources: string | string[], options: Partial<Options>): Promise<string> {
+function logCommand(processed: ProcessedOptions) {
+  if (processed.verbose) {
+    console.log(["Running", processed.command, ...processed.args].join(" "));
+  }
+}
+
+export function compileToString(sources: string | string[], options: Options): Promise<string> {
   const suffix = getSuffix(options.output, '.js');
 
   return new Promise(function (resolve, reject) {
@@ -93,74 +97,18 @@ export function compileToStringSync(sources: string | string[], options: Options
 
   const file = temp.openSync({ suffix });
   options.output = file.path;
+
   compileSync(sources, options);
 
   return fs.readFileSync(file.path, { encoding: "utf8" });
 }
 
-export type Options = {
-  spawn: typeof spawn,
-  runtimeOptions?: string[],
-  cwd?: string,
-  pathToElm?: string,
-  help?: boolean,
-  output?: string,
-  report?: string,
-  debug?: boolean,
-  verbose?: boolean,
-  processOpts?: SpawnOptions,
-  docs?: string,
-  optimize?: boolean,
-}
-
-const defaultOptions: Options = {
-  spawn: spawn,
-  runtimeOptions: undefined,
-  cwd: undefined,
-  pathToElm: undefined,
-  help: undefined,
-  output: undefined,
-  report: undefined,
-  debug: undefined,
-  verbose: false,
-  processOpts: undefined,
-  docs: undefined,
-  optimize: undefined,
-};
-
-const supportedOptions = _.keys(defaultOptions);
-
-function prepareOptions(options: Partial<Options>, spawnFn: typeof spawn): Options {
-  return _.defaults({ spawn: spawnFn }, options, defaultOptions);
-}
-
-function runCompiler(sources: string | string[], options: Options, processedOptions: ProcessedOptions): ChildProcess {
-  if (typeof options.spawn !== "function") {
-    throw "options.spawn was a(n) " + (typeof options.spawn) + " instead of a function.";
+function getSuffix(outputPath: string | undefined, defaultSuffix: string): string {
+  if (outputPath) {
+    return path.extname(outputPath) || defaultSuffix;
+  } else {
+    return defaultSuffix;
   }
-
-  const processArgs = prepareProcessArgs(sources, options);
-
-  if (options.verbose) {
-    console.log(["Running", processedOptions.pathToElm].concat(processArgs).join(" "));
-  }
-
-  return options.spawn(processedOptions.pathToElm, processArgs, processedOptions.processOpts);
-}
-
-function prepareProcessArgs(sources: string | string[], options: Options): string[] {
-  const preparedSources = prepareSources(sources);
-  const compilerArgs = compilerArgsFromOptions(options);
-
-  return ["make"].concat(preparedSources ? preparedSources.concat(compilerArgs) : compilerArgs);
-}
-
-function prepareSources(sources: string | string[]): string[] {
-  if (!(sources instanceof Array || typeof sources === "string")) {
-    throw "compile() received neither an Array nor a String for its sources argument.";
-  }
-
-  return typeof sources === "string" ? [sources] : sources;
 }
 
 function compilerErrorToString(err: { code?: string, message?: string }, pathToElm: string): string {
@@ -181,48 +129,3 @@ function compilerErrorToString(err: { code?: string, message?: string }, pathToE
     return "Exception thrown when attempting to run Elm compiler " + JSON.stringify(pathToElm);
   }
 }
-
-function getSuffix(outputPath: string | undefined, defaultSuffix: string): string {
-  if (outputPath) {
-    return path.extname(outputPath) || defaultSuffix;
-  } else {
-    return defaultSuffix;
-  }
-}
-
-// Converts an object of key/value pairs to an array of arguments suitable
-// to be passed to child_process.spawn for elm-make.
-function compilerArgsFromOptions(options: Options): string[] {
-  return _.flatten(_.map(options, function (value: string, opt: string): string[] {
-    if (value) {
-      switch (opt) {
-        case "help": return ["--help"];
-        case "output": return ["--output", value];
-        case "report": return ["--report", value];
-        case "debug": return ["--debug"];
-        case "docs": return ["--docs", value];
-        case "optimize": return ["--optimize"];
-        case "runtimeOptions": return _.concat(["+RTS"], value, ["-RTS"]);
-        default:
-          if (supportedOptions.indexOf(opt) === -1) {
-            if (opt === "yes") {
-              throw new Error('node-elm-compiler received the `yes` option, but that was removed in Elm 0.19. Try re-running without passing the `yes` option.');
-            } else if (opt === "warn") {
-              throw new Error('node-elm-compiler received the `warn` option, but that was removed in Elm 0.19. Try re-running without passing the `warn` option.');
-            } else if (opt === "pathToMake") {
-              throw new Error('node-elm-compiler received the `pathToMake` option, but that was renamed to `pathToElm` in Elm 0.19. Try re-running after renaming the parameter to `pathToElm`.');
-            } else {
-              throw new Error('node-elm-compiler was given an unrecognized Elm compiler option: ' + opt);
-            }
-          }
-
-          return [];
-      }
-    } else {
-      return [];
-    }
-  }));
-}
-
-export const compileWorker = compileWorkerBuilder(compile);
-export const _prepareProcessArgs = prepareProcessArgs;

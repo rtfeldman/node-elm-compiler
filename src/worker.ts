@@ -1,7 +1,8 @@
 import * as temp from "temp";
 import * as path from "path";
 
-import { compile as compileFunc, Options } from './index';
+import { compile as compileFunc } from './index';
+import { Options } from "./options"
 
 temp.track();
 
