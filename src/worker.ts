@@ -8,33 +8,6 @@ temp.track();
 
 const jsEmitterFilename = "emitter.js";
 
-const KNOWN_MODULES =
-  [
-    "fullscreen",
-    "embed",
-    "worker",
-    "Basics",
-    "Maybe",
-    "List",
-    "Array",
-    "Char",
-    "Color",
-    "Transform2D",
-    "Text",
-    "Graphics",
-    "Debug",
-    "Result",
-    "Task",
-    "Signal",
-    "String",
-    "Dict",
-    "Json",
-    "Regex",
-    "VirtualDom",
-    "Html",
-    "Css"
-  ];
-
 type Compile = typeof compileFunc;
 
 // elmModuleName is optional, and is by default inferred based on the filename.
@@ -73,13 +46,71 @@ function createTmpDir(): Promise<string> {
   });
 }
 
+function compileEmitter(compile: Compile, src: string, options: Partial<Options>): Promise<number> {
+  return new Promise(function (resolve, reject) {
+    compile(src, options)
+      .on("close", function (exitCode) {
+        if (exitCode === 0) {
+          resolve(exitCode);
+        } else {
+          reject("Errored with exit code " + exitCode);
+        }
+      })
+  });
+}
+
 type ElmWorker = object;
+
+function runWorker(jsFilename: string, moduleName: string, workerArgs: object): Promise<ElmWorker> {
+  return new Promise(function (resolve, reject) {
+    const Elm = require(jsFilename).Elm;
+
+    if (!(moduleName in Elm)) {
+      return reject(missingEntryModuleMessage(moduleName, Elm));
+    }
+
+    const worker = Elm[moduleName].init(workerArgs);
+
+    if (Object.keys(worker.ports).length === 0) {
+      return reject(noPortsMessage(moduleName));
+    }
+
+    return resolve(worker);
+  });
+}
 
 function suggestModulesNames(Elm: ElmWorker): string[] {
   return Object.keys(Elm).filter(function (key) {
     return KNOWN_MODULES.indexOf(key) === -1;
   })
 }
+
+const KNOWN_MODULES =
+  [
+    "fullscreen",
+    "embed",
+    "worker",
+    "Basics",
+    "Maybe",
+    "List",
+    "Array",
+    "Char",
+    "Color",
+    "Transform2D",
+    "Text",
+    "Graphics",
+    "Debug",
+    "Result",
+    "Task",
+    "Signal",
+    "String",
+    "Dict",
+    "Json",
+    "Regex",
+    "VirtualDom",
+    "Html",
+    "Css"
+  ];
 
 function missingEntryModuleMessage(moduleName: string, Elm: ElmWorker): string {
   let errorMessage = "I couldn't find the entry module " + moduleName + ".\n";
@@ -103,35 +134,4 @@ function noPortsMessage(moduleName: string): string {
   errorMessage += "port foo : Value\nport foo =\n    someValue\n\nto " + moduleName + "!";
 
   return errorMessage.trim();
-}
-
-function runWorker(jsFilename: string, moduleName: string, workerArgs: object): Promise<ElmWorker> {
-  return new Promise(function (resolve, reject) {
-    const Elm = require(jsFilename).Elm;
-
-    if (!(moduleName in Elm)) {
-      return reject(missingEntryModuleMessage(moduleName, Elm));
-    }
-
-    const worker = Elm[moduleName].init(workerArgs);
-
-    if (Object.keys(worker.ports).length === 0) {
-      return reject(noPortsMessage(moduleName));
-    }
-
-    return resolve(worker);
-  });
-}
-
-function compileEmitter(compile: Compile, src: string, options: Partial<Options>): Promise<number> {
-  return new Promise(function (resolve, reject) {
-    compile(src, options)
-      .on("close", function (exitCode) {
-        if (exitCode === 0) {
-          resolve(exitCode);
-        } else {
-          reject("Errored with exit code " + exitCode);
-        }
-      })
-  });
 }
