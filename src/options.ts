@@ -1,6 +1,12 @@
 import { SpawnOptions } from "child_process";
 import * as _ from "lodash";
 
+/**
+ * Transforms our CLI options into a form suitable for spawning a process.
+ * @param sources Path(s) to the files to compile.
+ * @param options CLI input options.
+ * @returns Options suitable for spawning a process.
+ */
 export function processOptions(sources: string | string[], options: Options): ProcessedOptions {
     return {
         command: getPathToElm(options.pathToElm),
@@ -10,8 +16,16 @@ export function processOptions(sources: string | string[], options: Options): Pr
     };
 }
 
+/**
+ * All options our CLI accepts.
+ * 
+ * For backwards compatibility, we merge the CLI options and Elm compiler arguments.
+ */
 export type Options = CliOptions & ElmArgs
 
+/**
+ * Our CLI-specific options.
+ */
 interface CliOptions {
     pathToElm?: string,
     cwd?: string,
@@ -19,6 +33,9 @@ interface CliOptions {
     verbose?: boolean,
 }
 
+/**
+ * Arguments for the elm compiler.
+ */
 interface ElmArgs {
     output?: string,
     optimize?: boolean,
@@ -29,6 +46,9 @@ interface ElmArgs {
     runtimeOptions?: string[],
 }
 
+/**
+ * Arguments for spawning the process.
+ */
 export type ProcessedOptions = {
     command: string,
     args: string[],

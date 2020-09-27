@@ -15,6 +15,8 @@ export { findAllDependencies } from "find-elm-dependencies";
 export const compileWorker = compileWorkerBuilder(compile);
 export { processOptions, ProcessedOptions, Options };
 
+// Track temp files, so that they will be automatically deleted on process exit.
+// See https://github.com/bruce/node-temp#want-cleanup-make-sure-you-ask-for-it
 temp.track();
 
 export function compile(sources: string | string[], rawOptions: Options): ChildProcess {
