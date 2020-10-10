@@ -1,126 +1,53 @@
-'use strict';
+import * as spawn from "cross-spawn";
+import * as _ from "lodash"
+import { ChildProcess, SpawnSyncReturns } from "child_process";
+import * as fs from "fs";
+import * as path from "path";
+import * as temp from "temp";
 
-var spawn = require("cross-spawn");
-var _ = require("lodash");
-var elmBinaryName = "elm";
-var fs = require("fs");
-var path = require("path");
-var temp = require("temp").track();
-var findAllDependencies = require("find-elm-dependencies").findAllDependencies;
+import { processOptions, ProcessedOptions, Options } from "./options"
 
-var defaultOptions = {
-  spawn: spawn,
-  cwd: undefined,
-  pathToElm: undefined,
-  help: undefined,
-  output: undefined,
-  report: undefined,
-  debug: undefined,
-  verbose: false,
-  processOpts: undefined,
-  docs: undefined,
-  optimize: undefined,
-};
+export { compileWorker } from "./worker";
+// Let's ignore that the following dependency does not have types.
+//@ts-ignore
+export { findAllDependencies } from "find-elm-dependencies";
 
-var supportedOptions = _.keys(defaultOptions);
+export { processOptions, ProcessedOptions, Options };
 
-function prepareSources(sources) {
-  if (!(sources instanceof Array || typeof sources === "string")) {
-    throw "compile() received neither an Array nor a String for its sources argument.";
-  }
+// Track temp files, so that they will be automatically deleted on process exit.
+// See https://github.com/bruce/node-temp#want-cleanup-make-sure-you-ask-for-it
+temp.track();
 
-  return typeof sources === "string" ? [sources] : sources;
-}
-
-function prepareOptions(options, spawnFn) {
-  return _.defaults({ spawn: spawnFn }, options, defaultOptions);
-}
-
-function prepareProcessArgs(sources, options) {
-  var preparedSources = prepareSources(sources);
-  var compilerArgs = compilerArgsFromOptions(options);
-
-  return ["make"].concat(preparedSources ? preparedSources.concat(compilerArgs) : compilerArgs);
-}
-
-function prepareProcessOpts(options) {
-  var env = _.merge({ LANG: 'en_US.UTF-8' }, process.env);
-  return _.merge({ env: env, stdio: "inherit", cwd: options.cwd }, options.processOpts);
-
-}
-
-function runCompiler(sources, options, pathToElm) {
-  if (typeof options.spawn !== "function") {
-    throw "options.spawn was a(n) " + (typeof options.spawn) + " instead of a function.";
-  }
-
-  var processArgs = prepareProcessArgs(sources, options);
-  var processOpts = prepareProcessOpts(options);
-
-  if (options.verbose) {
-    console.log(["Running", pathToElm].concat(processArgs).join(" "));
-  }
-
-  return options.spawn(pathToElm, processArgs, processOpts);
-}
-
-function compilerErrorToString(err, pathToElm) {
-  if ((typeof err === "object") && (typeof err.code === "string")) {
-    switch (err.code) {
-      case "ENOENT":
-        return "Could not find Elm compiler \"" + pathToElm + "\". Is it installed?";
-
-      case "EACCES":
-        return "Elm compiler \"" + pathToElm + "\" did not have permission to run. Do you need to give it executable permissions?";
-
-      default:
-        return "Error attempting to run Elm compiler \"" + pathToElm + "\":\n" + err;
-    }
-  } else if ((typeof err === "object") && (typeof err.message === "string")) {
-    return JSON.stringify(err.message);
-  } else {
-    return "Exception thrown when attempting to run Elm compiler " + JSON.stringify(pathToElm);
-  }
-}
-
-function compileSync(sources, options) {
-  var optionsWithDefaults = prepareOptions(options, options.spawn || spawn.sync);
-  var pathToElm = options.pathToElm || elmBinaryName;
+export function compile(sources: string | string[], rawOptions: Options): ChildProcess {
+  const processed = processOptions(sources, rawOptions);
 
   try {
-    return runCompiler(sources, optionsWithDefaults, pathToElm);
-  } catch (err) {
-    throw compilerErrorToString(err, pathToElm);
-  }
-}
-
-function compile(sources, options) {
-  var optionsWithDefaults = prepareOptions(options, options.spawn || spawn);
-  var pathToElm = options.pathToElm || elmBinaryName;
-
-
-  try {
-    return runCompiler(sources, optionsWithDefaults, pathToElm)
+    logCommand(processed);
+    return spawn(processed.command, processed.args, processed.options)
       .on('error', function (err) { throw (err); });
   } catch (err) {
-    throw compilerErrorToString(err, pathToElm);
+    throw new Error(compilerErrorToString(err, processed.command));
   }
 }
 
-function getSuffix(outputPath, defaultSuffix) {
-  if (outputPath) {
-    return path.extname(outputPath) || defaultSuffix;
-  } else {
-    return defaultSuffix;
+export function compileSync(sources: string | string[], options: Options): SpawnSyncReturns<Buffer> {
+  const processed = processOptions(sources, options);
+
+  try {
+    logCommand(processed);
+    return spawn.sync(processed.command, processed.args, processed.options)
+  } catch (err) {
+    throw new Error(compilerErrorToString(err, processed.command));
   }
 }
 
-// write compiled Elm to a string output
-// returns a Promise which will contain a Buffer of the text
-// If you want html instead of js, use options object to set
-// output to a html file instead
-// creates a temp file and deletes it after reading
-function compileToString(sources, options) {
+function logCommand(processed: ProcessedOptions) {
+  if (processed.verbose) {
+    console.log(["Running", processed.command, ...processed.args].join(" "));
+  }
+}
+
+export function compileToString(sources: string | string[], options: Options): Promise<string> {
   const suffix = getSuffix(options.output, '.js');
 
   return new Promise(function (resolve, reject) {
@@ -132,7 +59,7 @@ function compileToString(sources, options) {
       options.output = info.path;
       options.processOpts = { stdio: 'pipe' }
 
-      var compiler;
+      let compiler;
 
       try {
         compiler = compile(sources, options);
@@ -143,7 +70,7 @@ function compileToString(sources, options) {
       compiler.stdout.setEncoding("utf8");
       compiler.stderr.setEncoding("utf8");
 
-      var output = '';
+      let output = '';
       compiler.stdout.on('data', function (chunk) {
         output += chunk;
       });
@@ -166,56 +93,40 @@ function compileToString(sources, options) {
   });
 }
 
-function compileToStringSync(sources, options) {
+export function compileToStringSync(sources: string | string[], options: Options): string {
   const suffix = getSuffix(options.output, '.js');
 
   const file = temp.openSync({ suffix });
   options.output = file.path;
+
   compileSync(sources, options);
 
   return fs.readFileSync(file.path, { encoding: "utf8" });
 }
 
-// Converts an object of key/value pairs to an array of arguments suitable
-// to be passed to child_process.spawn for elm-make.
-function compilerArgsFromOptions(options) {
-  return _.flatten(_.map(options, function (value, opt) {
-    if (value) {
-      switch (opt) {
-        case "help": return ["--help"];
-        case "output": return ["--output", value];
-        case "report": return ["--report", value];
-        case "debug": return ["--debug"];
-        case "docs": return ["--docs", value];
-        case "optimize": return ["--optimize"];
-        case "runtimeOptions": return [].concat(["+RTS"], value, ["-RTS"]);
-        default:
-          if (supportedOptions.indexOf(opt) === -1) {
-            if (opt === "yes") {
-              throw new Error('node-elm-compiler received the `yes` option, but that was removed in Elm 0.19. Try re-running without passing the `yes` option.');
-            } else if (opt === "warn") {
-              throw new Error('node-elm-compiler received the `warn` option, but that was removed in Elm 0.19. Try re-running without passing the `warn` option.');
-            } else if (opt === "pathToMake") {
-              throw new Error('node-elm-compiler received the `pathToMake` option, but that was renamed to `pathToElm` in Elm 0.19. Try re-running after renaming the parameter to `pathToElm`.');
-            } else {
-              throw new Error('node-elm-compiler was given an unrecognized Elm compiler option: ' + opt);
-            }
-          }
-
-          return [];
-      }
-    } else {
-      return [];
-    }
-  }));
+function getSuffix(outputPath: string | undefined, defaultSuffix: string): string {
+  if (outputPath) {
+    return path.extname(outputPath) || defaultSuffix;
+  } else {
+    return defaultSuffix;
+  }
 }
 
-module.exports = {
-  compile: compile,
-  compileSync: compileSync,
-  compileWorker: require("./worker")(compile),
-  compileToString: compileToString,
-  compileToStringSync: compileToStringSync,
-  findAllDependencies: findAllDependencies,
-  _prepareProcessArgs: prepareProcessArgs
-};
+function compilerErrorToString(err: { code?: string, message?: string }, pathToElm: string): string {
+  if ((typeof err === "object") && (typeof err.code === "string")) {
+    switch (err.code) {
+      case "ENOENT":
+        return "Could not find Elm compiler \"" + pathToElm + "\". Is it installed?";
+
+      case "EACCES":
+        return "Elm compiler \"" + pathToElm + "\" did not have permission to run. Do you need to give it executable permissions?";
+
+      default:
+        return "Error attempting to run Elm compiler \"" + pathToElm + "\":\n" + err;
+    }
+  } else if ((typeof err === "object") && (typeof err.message === "string")) {
+    return JSON.stringify(err.message);
+  } else {
+    return "Exception thrown when attempting to run Elm compiler " + JSON.stringify(pathToElm);
+  }
+}
