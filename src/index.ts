@@ -8,10 +8,6 @@ import * as temp from "temp";
 import { processOptions, ProcessedOptions, Options } from "./options"
 
 export { compileWorker } from "./worker";
-// Let's ignore that the following dependency does not have types.
-//@ts-ignore
-export { findAllDependencies } from "find-elm-dependencies";
-
 export { processOptions, ProcessedOptions, Options };
 
 // Track temp files, so that they will be automatically deleted on process exit.
