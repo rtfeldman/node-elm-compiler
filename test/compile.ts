@@ -168,7 +168,6 @@ describe("#compileWorker", function () {
     const compilePromise = compiler.compileWorker(
       prependFixturesDir(""),
       prependFixturesDir("BasicWorker.elm"),
-      "BasicWorker",
     );
 
     return compilePromise.then(function (app: any) {
@@ -186,8 +185,7 @@ describe("#compileWorker", function () {
     const compilePromise = compiler.compileWorker(
       prependFixturesDir(""),
       prependFixturesDir("EchoWorker.elm"),
-      "EchoWorker",
-      { flags: "echo" }
+      "echo"
     );
 
     return compilePromise.then(function (app: any) {

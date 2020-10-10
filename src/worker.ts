@@ -15,9 +15,10 @@ const jsEmitterFilename = "emitter.js";
 export async function compileWorker(
   projectRootDir: Path,
   modulePath: Path,
-  moduleName: string,
-  workerArgs?: { flags: any },
+  flags?: any,
 ): Promise<ElmWorker> {
+  const moduleName = extractModuleName(modulePath);
+
   const originalWorkingDir = process.cwd();
   process.chdir(projectRootDir);
 
@@ -26,7 +27,7 @@ export async function compileWorker(
     const dest = path.join(tmpDirPath, jsEmitterFilename);
 
     await compileAsync(modulePath, { output: dest });
-    const worker = await runWorker(dest, moduleName, workerArgs?.flags);
+    const worker = await runWorker(dest, moduleName, flags);
 
     return worker;
   } catch (err) {
@@ -34,6 +35,10 @@ export async function compileWorker(
   } finally {
     process.chdir(originalWorkingDir);
   }
+}
+
+function extractModuleName(modulePath: Path): string {
+  return path.basename(modulePath, ".elm")
 }
 
 function createTmpDir(): Promise<string> {
