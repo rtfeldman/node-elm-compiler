@@ -1,38 +1,40 @@
 import * as temp from "temp";
 import * as path from "path";
 
-import { compile as compileFunc } from './index';
+import { compile } from './index';
 import { Options } from "./options"
 
+// Track temp files, so that they will be automatically deleted on process exit.
+// See https://github.com/bruce/node-temp#want-cleanup-make-sure-you-ask-for-it
 temp.track();
+
+type Path = string;
 
 const jsEmitterFilename = "emitter.js";
 
-type Compile = typeof compileFunc;
+export async function compileWorker(
+  projectRootDir: Path,
+  modulePath: Path,
+  moduleName: string,
+  workerArgs?: { flags: any },
+): Promise<ElmWorker> {
+  const originalWorkingDir = process.cwd();
+  process.chdir(projectRootDir);
 
-// elmModuleName is optional, and is by default inferred based on the filename.
-export default function (compile: Compile) {
-  return function (projectRootDir: string, modulePath: string, moduleName: string, workerArgs: object) {
-    const originalWorkingDir = process.cwd();
-    process.chdir(projectRootDir);
+  try {
+    const tmpDirPath = await createTmpDir();
+    const dest = path.join(tmpDirPath, jsEmitterFilename);
 
-    return createTmpDir()
-      .then(function (tmpDirPath: string) {
-        const dest = path.join(tmpDirPath, jsEmitterFilename);
+    await compileAsync(modulePath, { output: dest });
+    const worker = await runWorker(dest, moduleName, workerArgs?.flags);
 
-        return compileEmitter(compile, modulePath, { output: dest })
-          .then(function () { return runWorker(dest, moduleName, workerArgs) });
-      })
-      .then(function (worker) {
-        process.chdir(originalWorkingDir);
-        return worker;
-      })
-      .catch(function (err) {
-        process.chdir(originalWorkingDir);
-        throw Error(err);
-      });
-  };
-};
+    return worker;
+  } catch (err) {
+    throw Error(err);
+  } finally {
+    process.chdir(originalWorkingDir);
+  }
+}
 
 function createTmpDir(): Promise<string> {
   return new Promise(function (resolve, reject) {
@@ -46,7 +48,7 @@ function createTmpDir(): Promise<string> {
   });
 }
 
-function compileEmitter(compile: Compile, src: string, options: Partial<Options>): Promise<number> {
+function compileAsync(src: string, options: Partial<Options>): Promise<number> {
   return new Promise(function (resolve, reject) {
     compile(src, options)
       .on("close", function (exitCode) {
@@ -61,22 +63,40 @@ function compileEmitter(compile: Compile, src: string, options: Partial<Options>
 
 type ElmWorker = object;
 
-function runWorker(jsFilename: string, moduleName: string, workerArgs: object): Promise<ElmWorker> {
-  return new Promise(function (resolve, reject) {
-    const Elm = require(jsFilename).Elm;
+async function runWorker(
+  jsFilename: string,
+  moduleName: string,
+  flags?: any,
+): Promise<ElmWorker> {
+  const elmFile = await import(jsFilename);
+  const Elm = elmFile.Elm;
 
-    if (!(moduleName in Elm)) {
-      return reject(missingEntryModuleMessage(moduleName, Elm));
-    }
+  if (!(moduleName in Elm)) {
+    throw missingEntryModuleMessage(moduleName, Elm);
+  }
 
-    const worker = Elm[moduleName].init(workerArgs);
+  const worker = Elm[moduleName].init({ flags });
 
-    if (Object.keys(worker.ports).length === 0) {
-      return reject(noPortsMessage(moduleName));
-    }
+  if (Object.keys(worker.ports).length === 0) {
+    throw noPortsMessage(moduleName);
+  }
 
-    return resolve(worker);
-  });
+  return worker;
+}
+
+function missingEntryModuleMessage(moduleName: string, Elm: ElmWorker): string {
+  let errorMessage = "I couldn't find the entry module " + moduleName + ".\n";
+  const suggestions = suggestModulesNames(Elm);
+
+  if (suggestions.length > 1) {
+    errorMessage += "\nMaybe you meant one of these: " + suggestions.join(",");
+  } else if (suggestions.length === 1) {
+    errorMessage += "\nMaybe you meant: " + suggestions;
+  }
+
+  errorMessage += "\nYou can pass me a different module to use with --module=<moduleName>";
+
+  return errorMessage;
 }
 
 function suggestModulesNames(Elm: ElmWorker): string[] {
@@ -111,21 +131,6 @@ const KNOWN_MODULES =
     "Html",
     "Css"
   ];
-
-function missingEntryModuleMessage(moduleName: string, Elm: ElmWorker): string {
-  let errorMessage = "I couldn't find the entry module " + moduleName + ".\n";
-  const suggestions = suggestModulesNames(Elm);
-
-  if (suggestions.length > 1) {
-    errorMessage += "\nMaybe you meant one of these: " + suggestions.join(",");
-  } else if (suggestions.length === 1) {
-    errorMessage += "\nMaybe you meant: " + suggestions;
-  }
-
-  errorMessage += "\nYou can pass me a different module to use with --module=<moduleName>";
-
-  return errorMessage;
-}
 
 function noPortsMessage(moduleName: string): string {
   let errorMessage = "The module " + moduleName + " doesn't expose any ports!\n";

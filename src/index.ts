@@ -6,13 +6,12 @@ import * as path from "path";
 import * as temp from "temp";
 
 import { processOptions, ProcessedOptions, Options } from "./options"
-import compileWorkerBuilder from "./worker";
 
+export { compileWorker } from "./worker";
 // Let's ignore that the following dependency does not have types.
 //@ts-ignore
 export { findAllDependencies } from "find-elm-dependencies";
 
-export const compileWorker = compileWorkerBuilder(compile);
 export { processOptions, ProcessedOptions, Options };
 
 // Track temp files, so that they will be automatically deleted on process exit.

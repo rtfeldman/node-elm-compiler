@@ -169,12 +169,30 @@ describe("#compileWorker", function () {
       prependFixturesDir(""),
       prependFixturesDir("BasicWorker.elm"),
       "BasicWorker",
-      {}
     );
 
     return compilePromise.then(function (app: any) {
       app.ports.reportFromWorker.subscribe(function (str: string) {
         expect(str).to.equal("it's alive!");
+      });
+    })
+  });
+
+  it("accepts arguments", function () {
+    const opts = {
+      verbose: true,
+      cwd: fixturesDir
+    };
+    const compilePromise = compiler.compileWorker(
+      prependFixturesDir(""),
+      prependFixturesDir("EchoWorker.elm"),
+      "EchoWorker",
+      { flags: "echo" }
+    );
+
+    return compilePromise.then(function (app: any) {
+      app.ports.reportFromWorker.subscribe(function (str: string) {
+        expect(str).to.equal("You said: echo");
       });
     })
   });
