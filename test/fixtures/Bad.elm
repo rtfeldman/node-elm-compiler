@@ -1,4 +1,4 @@
-module Bad
+module Bad exposing (..)
 
 
 main =
