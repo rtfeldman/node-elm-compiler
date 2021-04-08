@@ -171,9 +171,15 @@ function compileToStringSync(sources, options) {
 
   const file = temp.openSync({ suffix });
   options.output = file.path;
-  compileSync(sources, options);
+  let compileProcess = compileSync(sources, options);
 
-  return fs.readFileSync(file.path, { encoding: "utf8" });
+  if (compileProcess.status == 0) {
+    return fs.readFileSync(file.path, { encoding: "utf8" });
+  }
+  else {
+    // Throw a simple error. We already let elm output to stdout/stderr
+    throw 'Compilation failed.';
+  }
 }
 
 // Converts an object of key/value pairs to an array of arguments suitable

@@ -30,4 +30,11 @@ describe("#compileToStringSync", function () {
     expect(result).to.include('<title>Parent</title>');
     expect(result).to.include("_Platform_export");
   });
+  it('throws on compilation errors', function () {
+    var opts = { verbose: false, cwd: fixturesDir };
+
+    expect(function () {
+      compiler.compileToStringSync(prependFixturesDir("Bad.elm"), opts);
+    }).to.throw();
+  });
 });
